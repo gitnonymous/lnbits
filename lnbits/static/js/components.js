@@ -174,6 +174,47 @@ Vue.component('lnbits-extension-list', {
     }
   }
 })
+Vue.component('lnbits-settings-list', {
+  data: function () {
+    return {
+      extensions: [],
+      user: null,
+      wallet_mode_val: false,
+      wallet_mode_show: false,
+      wallet_mode_modal: false
+    }
+  },
+  template: `
+    <q-list dense class="lnbits-drawer__q-list" v-if="screenWidth">
+      <q-item-label header>Settings</q-item-label>
+      <q-item>
+        <div class="row items-center">
+          <q-icon name="account_balance_wallet" class="text-grey-5" style="font-size:32px;"/>
+          <div class="q-ml-sm q-item__label text-caption ellipsis">Wallet Mode</div>
+          <div class="q-pa-md">
+            <div class="q-gutter-sm">
+              <q-checkbox v-model="wallet_mode_val"/>
+            </div>
+            <div class="q-px-sm">
+            </div>
+          </div>
+          <q-icon name="settings" class="cursor-pointer"/>
+        </div>
+      </q-item>
+    </q-list>
+  `,
+  watch:{
+    wallet_mode_val: (value)=>{
+      console.log(value)
+      this.wallet_mode_val = value
+    }
+  },
+  computed:{
+    screenWidth() {
+      return innerWidth < 1024 ? true : false
+    }
+  }
+})
 
 Vue.component('lnbits-payment-details', {
   props: ['payment'],
