@@ -243,20 +243,10 @@ Vue.component('lnbits-settings-list', {
       const getEl = (elem)=>{
         return document.querySelectorAll(elem)
       }
-      switch (el) {
-        case 'side':
-          [...getEl('.q-btn__content i')].filter(el => el.textContent == 'menu')[0].click()
-          break;
-        case 'paste':
-          [...getEl('.q-btn__content')].filter(el => el.textContent == 'Paste Request')[0].click()
-          break;
-        case 'create':
-          [...getEl('.q-btn__content')].filter(el => el.textContent == 'Create Invoice')[0].click()
-          break;
-        case 'camera':
-          [...getEl('.q-btn__content i')].filter(el => el.textContent == 'photo_camera')[0].click()
-          break;
-      }
+      el == 'side' && [...getEl('.q-btn__content i')].filter(el => el.textContent == 'menu')[0].click()
+      el == 'paste' && [...getEl('.q-btn__content')].filter(el => el.textContent == 'Paste Request')[0].click()
+      el == 'create' && [...getEl('.q-btn__content')].filter(el => el.textContent == 'Create Invoice')[0].click()
+      el == 'camera' && [...getEl('.q-btn__content i')].filter(el => el.textContent == 'photo_camera')[0].click()
     }
   },
   watch:{
