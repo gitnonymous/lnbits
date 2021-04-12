@@ -179,40 +179,96 @@ Vue.component('lnbits-settings-list', {
     return {
       extensions: [],
       user: null,
-      wallet_mode_val: false,
-      wallet_mode_show: false,
-      wallet_mode_modal: false
+      walletModeVal: localStorage.wallet_mode === 'true' || false,
+      maximizedToggle: true,
+      walletBalance: window.wallet[window.wallet.length -1]+' sat'
     }
   },
   template: `
-    <q-list dense class="lnbits-drawer__q-list" v-if="screenWidth">
-      <q-item-label header>Settings</q-item-label>
-      <q-item>
-        <div class="row items-center">
-          <q-icon name="account_balance_wallet" class="text-grey-5" style="font-size:32px;"/>
-          <div class="q-ml-sm q-item__label text-caption ellipsis">Wallet Mode</div>
-          <div class="q-pa-md">
-            <div class="q-gutter-sm">
-              <q-checkbox v-model="wallet_mode_val"/>
+      <q-list dense class="lnbits-drawer__q-list">
+        <q-item-label header>Settings</q-item-label>
+        <q-item>
+          <div class="row items-center xs" style="margin-top: -20px;">
+            <q-icon name="account_balance_wallet" class="text-grey-5" style="font-size:32px;"/>
+            <div class="q-ml-sm q-item__label text-caption ellipsis">Wallet Mode</div>
+            <div class="q-pa-md">
+              <div class="q-gutter-sm">
+                <q-checkbox v-model="walletModeVal"/>
+              </div>
+              <div class="q-px-sm">
+              </div>
             </div>
-            <div class="q-px-sm">
-            </div>
+            <q-icon name="settings" class="cursor-pointer"/>
           </div>
-          <q-icon name="settings" class="cursor-pointer"/>
-        </div>
-      </q-item>
-    </q-list>
+        </q-item>
+        <q-dialog
+          v-model="walletModeVal"
+          persistent
+          :maximized="maximizedToggle"
+          transition-show="slide-up"
+          transition-hide="slide-down"
+        >
+          <q-card class="text-white" 
+          style="
+            background: inherit;
+            backdrop-filter: blur(20px);
+          ">
+            <q-bar class="fixed-bottom row justify-center q-mb-lg " style="background:inherit;">
+              <q-btn dense flat icon="more_vert" @click="domClick('side')" style="font-size: 1.5rem;"></q-btn>
+              <q-space></q-space>
+              <q-btn dense flat icon="content_paste" @click="domClick('paste')" style="font-size: 1.5rem;"></q-btn>
+              <q-space></q-space>
+              <q-btn dense flat icon="create" @click="domClick('create')" style="font-size: 1.5rem;"></q-btn>
+              <q-space></q-space>
+              <q-btn dense flat icon="camera" @click="domClick('camera')" style="font-size: 1.5rem;"></q-btn>
+            </q-bar>
+            <q-card-section class="q-mt-lg">
+              <div class="text-h3 text-center">{{walletBalance}}</div>
+            </q-card-section>
+
+            <q-card-section class="q-pt-none row justify-center">
+              <div style="
+              background-color: white;
+              height: 10px;
+              border-radius: 20px;
+              width: 50px;
+            "></div>
+            </q-card-section>
+          </q-card>
+        </q-dialog>
+      </q-list>
   `,
-  watch:{
-    wallet_mode_val: (value)=>{
-      console.log(value)
-      this.wallet_mode_val = value
+  methods:{
+    domClick: (el) =>{
+      const getEl = (elem)=>{
+        return document.querySelectorAll(elem)
+      }
+      switch (el) {
+        case 'side':
+          [...getEl('.q-btn__content i')].filter(el => el.textContent == 'menu')[0].click()
+          break;
+        case 'paste':
+          [...getEl('.q-btn__content')].filter(el => el.textContent == 'Paste Request')[0].click()
+          break;
+        case 'create':
+          [...getEl('.q-btn__content')].filter(el => el.textContent == 'Create Invoice')[0].click()
+          break;
+        case 'camera':
+          [...getEl('.q-btn__content i')].filter(el => el.textContent == 'photo_camera')[0].click()
+          break;
+      }
     }
   },
-  computed:{
-    screenWidth() {
-      return innerWidth < 1024 ? true : false
+  watch:{
+    walletModeVal:(val)=>{
+      document.querySelector('.q-drawer__backdrop')?.click()
+      localStorage.wallet_mode = val
+      setTimeout(_=> document.querySelector('.q-dialog').style.zIndex = 2000,300)
     }
+  },
+  mounted(){
+    this.walletBalance = window.wallet[window.wallet.length -1]+' sat' 
+    document.querySelector('.q-dialog') && setTimeout(_=> document.querySelector('.q-dialog').style.zIndex = 2000,300)
   }
 })
 
