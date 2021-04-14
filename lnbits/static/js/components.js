@@ -179,8 +179,8 @@ Vue.component('lnbits-settings-list', {
     return {
       extensions: [],
       user: null,
-      walletModeVal: innerWidth < 600 && localStorage.wallet_mode === 'true' || false,
-      walletModeSettings: localStorage.wallet_mode_settings === 'true' || false,
+      walletModeVal: innerWidth < 600 && location.pathname == '/wallet' && localStorage.wallet_mode === 'true' || false,
+      walletModeSettings: location.pathname == '/wallet' && localStorage.wallet_mode_settings === 'true' || false,
       maximizedToggle: true,
       walletBalance: '0 sat'
     }
@@ -305,7 +305,7 @@ Vue.component('lnbits-settings-list', {
     }
   },
   mounted(){
-    this.walletBalance = LNbits.utils.formatSat(window.wallet[5]/1000) +' sat' 
+    window.wallet && (this.walletBalance = LNbits.utils.formatSat(window.wallet[5]/1000) +' sat' )
     // EventHub.$on('payment-received', this.updateWalletBalance)
     this.walletModeVal && document.querySelector('.q-dialog') && setTimeout(_=> document.querySelector('.q-dialog').style.zIndex = 2000,300)
     setTimeout(_=> [...document.querySelectorAll('.q-dialog')].filter(x=> x.style.zIndex != '2000')[1]?.children[0].classList.toggle('fixed-full'),310)
