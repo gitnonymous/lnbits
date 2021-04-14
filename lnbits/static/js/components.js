@@ -179,9 +179,10 @@ Vue.component('lnbits-settings-list', {
     return {
       extensions: [],
       user: null,
-      walletModeVal: localStorage.wallet_mode === 'true' || false,
+      walletModeVal: innerWidth < 600 && localStorage.wallet_mode === 'true' || false,
+      walletModeSettings: localStorage.wallet_mode_settings === 'true' || false,
       maximizedToggle: true,
-      walletBalance: window.wallet[window.wallet.length -1]+' sat'
+      walletBalance: '0 sat'
     }
   },
   template: `
@@ -198,9 +199,10 @@ Vue.component('lnbits-settings-list', {
               <div class="q-px-sm">
               </div>
             </div>
-            <q-icon name="settings" class="cursor-pointer"/>
+            <q-icon name="settings" class="cursor-pointer" @click="walletModeSettings = !walletModeSettings"/>
           </div>
         </q-item>
+        
         <q-dialog
           v-model="walletModeVal"
           persistent
@@ -215,11 +217,11 @@ Vue.component('lnbits-settings-list', {
           ">
             <q-bar class="fixed-bottom row justify-center q-mb-lg " style="background:inherit;">
               <q-btn dense flat icon="more_vert" @click="domClick('side')" style="font-size: 1.5rem;"></q-btn>
-              <q-space></q-space>
+              <q-space />
               <q-btn dense flat icon="content_paste" @click="domClick('paste')" style="font-size: 1.5rem;"></q-btn>
-              <q-space></q-space>
+              <q-space />
               <q-btn dense flat icon="create" @click="domClick('create')" style="font-size: 1.5rem;"></q-btn>
-              <q-space></q-space>
+              <q-space />
               <q-btn dense flat icon="camera" @click="domClick('camera')" style="font-size: 1.5rem;"></q-btn>
             </q-bar>
             <q-card-section class="q-mt-lg">
@@ -236,6 +238,44 @@ Vue.component('lnbits-settings-list', {
             </q-card-section>
           </q-card>
         </q-dialog>
+
+        <q-dialog
+          v-model="walletModeSettings"
+          persistent
+          :maximized="maximizedToggle"
+          transition-show="slide-down"
+          transition-hide="slide-up"
+          >
+          <q-card class="fixed-top text-white row justify-center" 
+          style="
+            background: inherit;
+            backdrop-filter: blur(20px);
+            height: 30vh;
+          ">
+            <q-bar class="row justify-center" style="background:inherit;">
+              <h4 class="q-mb-md">Admin Panel</h4>
+            </q-bar>
+          </q-card>
+        </q-dialog>
+        <q-dialog
+          v-model="walletModeSettings"
+          persistent
+          :maximized="maximizedToggle"
+          transition-show="slide-left"
+          transition-hide="slide-right"
+          >
+          <q-card class="fixed-bottom text-white row justify-center"  
+          style="
+            background: inherit;
+            backdrop-filter: blur(20px);
+            height: 70vh;
+          ">
+            <h4 class="q-mt-md">Data Panel</h4>
+            <q-bar class="fixed-bottom row justify-center q-mb-lg text-white" style="background:inherit;">
+              <q-btn dense flat icon="close" v-close-popup></q-btn>
+            </q-bar>
+          </q-card>
+        </q-dialog>
       </q-list>
   `,
   methods:{
@@ -247,6 +287,10 @@ Vue.component('lnbits-settings-list', {
       el == 'paste' && [...getEl('.q-btn__content')].filter(el => el.textContent == 'Paste Request')[0].click()
       el == 'create' && [...getEl('.q-btn__content')].filter(el => el.textContent == 'Create Invoice')[0].click()
       el == 'camera' && [...getEl('.q-btn__content i')].filter(el => el.textContent == 'photo_camera')[0].click()
+    },
+    updateWalletBalance: async()=>{
+      const {data} = await LNbits.api.getWallet({inkey: window.wallet[4]})
+      return this.walletBalance = LNbits.utils.formatSat(data.balance/1000) +' sat' 
     }
   },
   watch:{
@@ -254,11 +298,17 @@ Vue.component('lnbits-settings-list', {
       document.querySelector('.q-drawer__backdrop')?.click()
       localStorage.wallet_mode = val
       setTimeout(_=> document.querySelector('.q-dialog').style.zIndex = 2000,300)
+    },
+    walletModeSettings:(val)=>{
+      localStorage.wallet_mode_settings = val
+      setTimeout(_=> val && [...document.querySelectorAll('.q-dialog')].filter(x=> x.style.zIndex != '2000')[1].children[0].classList.toggle('fixed-full'),50)
     }
   },
   mounted(){
-    this.walletBalance = window.wallet[window.wallet.length -1]+' sat' 
-    document.querySelector('.q-dialog') && setTimeout(_=> document.querySelector('.q-dialog').style.zIndex = 2000,300)
+    this.walletBalance = LNbits.utils.formatSat(window.wallet[5]/1000) +' sat' 
+    // EventHub.$on('payment-received', this.updateWalletBalance)
+    this.walletModeVal && document.querySelector('.q-dialog') && setTimeout(_=> document.querySelector('.q-dialog').style.zIndex = 2000,300)
+    setTimeout(_=> [...document.querySelectorAll('.q-dialog')].filter(x=> x.style.zIndex != '2000')[1]?.children[0].classList.toggle('fixed-full'),310)
   }
 })
 
