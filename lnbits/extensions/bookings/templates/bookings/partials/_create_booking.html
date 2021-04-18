@@ -1,0 +1,57 @@
+<q-card>
+    <q-card-section>
+      <q-btn unelevated color="deep-purple" @click="form.show = true" icon-right="event_available" label="New Booking Item" ></q-btn>
+    </q-card-section>
+  </q-card>
+
+  <q-dialog v-model="form.show" @hide="formReset()">
+    <q-card class="q-pa-lg q-pt-xl lnbits__dialog-card">
+        <q-select
+        filled
+        dense
+        emit-label
+        transition-show="flip-up"
+        transition-hide="flip-down"
+        v-model="form.data.booking_item"
+        :options="form.items.booking_item"
+        label="Choose Booking Item"
+        >
+        <template v-slot:option="scope">
+          <q-item
+            v-bind="scope.itemProps"
+            v-on="scope.itemEvents"
+          >
+            <q-item-section avatar>
+              <q-icon :name="scope.opt.icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label v-html="scope.opt.label" />
+            </q-item-section>
+          </q-item>
+        </template>
+        </q-select>
+      <q-form @submit="sendFormData">
+        <div class="q-gutter-md q-mt-md" v-if='form.booking.table'> {% include "bookings/partials/_table_booking_form_create.html" %}</div>
+        <div class="q-gutter-md q-mt-md" v-if='form.booking.room'> {% include "bookings/partials/_room_booking_form_create.html" %}</div>
+        <div class="row q-mt-lg">
+          <q-btn
+            v-if="form.data.id"
+            unelevated
+            color="deep-purple"
+            type="submit"
+            >Update Booking Item</q-btn
+          >
+          <q-btn
+            v-else
+            unelevated
+            color="deep-purple"
+            :disable="
+                form.data.wallet == null
+                "
+            type="submit"
+            >Create Booking Item</q-btn>
+          <q-btn v-close-popup flat color="grey" class="q-ml-auto">Cancel</q-btn>
+        </div>
+      </q-form>
+    </q-card>
+  </q-dialog>

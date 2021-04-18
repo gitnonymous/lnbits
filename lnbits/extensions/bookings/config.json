@@ -1,0 +1,6 @@
+{
+    "name": "Bookings",
+    "short_description": "Book Tables, Events, Rooms",
+    "icon": "event_available",
+    "contributors": ["gitnonymous"]
+}

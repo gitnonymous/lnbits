@@ -1,0 +1,88 @@
+<q-select
+    filled
+    dense
+    emit-value
+    v-model="form.data.wallet"
+    :options="g.user.walletOptions"
+    label="Wallet *"
+></q-select>
+    <q-input
+    filled
+    dense
+    v-model.trim="form.data.title"
+    type="text"
+    label="Service Title"
+></q-input>
+    <q-input
+    filled
+    dense
+    v-model.trim="form.data.description"
+    type="text"
+    label="Service Description"
+></q-input>
+    <q-input
+    filled
+    dense
+    v-model.trim="form.data.covers"
+    type="text"
+    label="Max Covers"
+></q-input>
+    <q-input
+    filled
+    dense
+    v-model.trim="form.data.location"
+    type="text"
+    label="Location"
+></q-input>
+    <q-input
+    filled
+    dense
+    v-model.trim="form.data.img_url"
+    type="text"
+    label="Background Image"
+></q-input>
+<div class="bg-grey-2 q-pa-sm rounded-borders">
+    Service Days:
+    <q-option-group
+      name=""
+      emit-label
+      v-model="form.data.table_days"
+      :options="form.items.table_days"
+      type="checkbox"
+      color="primary"
+      inline
+    />
+  </div>
+<div
+  class=""
+  style="max-width: max-content"
+  >
+    <q-input
+      filled
+      v-model="form.data.date"
+      mask="date"
+      :rules="[]"
+      label="Date"
+      >
+      <template v-slot:append>
+        <q-icon name="event" class="cursor-pointer">
+         <q-popup-proxy
+            ref="qDateProxy"
+            transition-show="scale"
+            transition-hide="scale">
+            <q-date
+              v-model="form.data.date"
+              >
+              <div class="row items-center justify-end">
+               <q-btn
+                  v-close-popup
+                  label="Close"
+                  color="primary"
+                  flat />
+              </div>
+            </q-date>
+          </q-popup-proxy>
+        </q-icon>
+      </template>
+    </q-input>
+  </div>

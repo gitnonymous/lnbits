@@ -1,0 +1,17 @@
+<q-select
+    filled
+    dense
+    emit-value
+    v-model="form.data.wallet"
+    :options="g.user.walletOptions"
+    label="Wallet *"
+    >
+    </q-select>
+
+    <q-input
+    filled
+    dense
+    v-model.trim="form.data.description"
+    type="text"
+    label="Number of people"
+></q-input>
