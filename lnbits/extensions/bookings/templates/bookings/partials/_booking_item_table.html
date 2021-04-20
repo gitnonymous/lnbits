@@ -1,0 +1,84 @@
+<q-card>
+    <q-card-section>
+      <div class="row items-center no-wrap q-mb-md">
+        <div class="col">
+          <h5 class="text-subtitle1 q-my-none">Booking Items</h5>
+        </div>
+      </div>
+      <q-table
+        dense
+        flat
+        :data="table.data"
+        row-key="id"
+        :pagination.sync="table.pagination"
+      >
+        {% raw %}
+        <template v-slot:header="props">
+          <q-tr :props="props">
+            <q-th auto-width></q-th>
+            <q-th auto-width class="text-left">Type</q-th>
+            <q-th auto-width class="text-left">Title</q-th>
+            <q-th auto-width class="text-left ellipsis">Display</q-th>
+            <q-th auto-width></q-th>
+            <q-th auto-width></q-th>
+          </q-tr>
+        </template>
+        <template v-slot:body="props">
+          <q-tr :props="props">
+            <q-td auto-width>
+              <q-btn
+                unelevated
+                dense
+                size="xs"
+                icon="launch"
+                :color="($q.dark.isActive) ? 'grey-7' : 'grey-5'"
+                type="a"
+                :href="form.booking_url"
+                target="_blank"
+              ></q-btn>
+              <q-btn
+                unelevated
+                dense
+                size="xs"
+                icon="visibility"
+                :color="($q.dark.isActive) ? 'grey-7' : 'grey-5'"
+                @click="openQrCodeDialog(props.row.id)"
+              ></q-btn>
+            </q-td>
+            <q-td auto-width class="text-capitalize">{{ props.row.booking_item }}</q-td>
+            <q-td>{{ props.row.title}}</q-td>
+            <q-td>{{ props.row.display ? 'Show' : 'Hidden'}}
+                <q-btn
+                flat
+                dense
+                size="xs"
+                @click="updateDisplay(props.row.id)"
+                :icon="props.row.display ? 'check_circle' : 'not_interested'"
+                :color="props.row.display ? 'green' : 'pink'"
+              ></q-btn>
+            </q-td>
+            <q-td auto-width></q-td>
+            <q-td auto-width>
+              <q-btn
+                flat
+                dense
+                size="xs"
+                @click="editBookingItem(props.row.id)"
+                icon="edit"
+                color="light-blue"
+              ></q-btn>
+              <q-btn
+                flat
+                dense
+                size="xs"
+                @click="deleteBookingItem(props.row.id)"
+                icon="delete"
+                color="pink"
+              ></q-btn>
+            </q-td>
+          </q-tr>
+        </template>
+        {% endraw %}
+      </q-table>
+    </q-card-section>
+  </q-card>

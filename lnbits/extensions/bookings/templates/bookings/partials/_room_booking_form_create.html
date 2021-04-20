@@ -1,3 +1,12 @@
+<q-input
+    v-if="form.data?.id"
+    filled
+    dense
+    v-model.trim="form.data.id"
+    type="text"
+    label="ID"
+    class="no-pointer-events"
+></q-input>
 <q-select
     filled
     dense
@@ -7,11 +16,32 @@
     label="Wallet *"
     >
     </q-select>
-
+    <q-input
+    filled
+    dense
+    v-model.trim="form.data.title"
+    type="text"
+    label="Title"
+></q-input>
     <q-input
     filled
     dense
     v-model.trim="form.data.description"
     type="text"
-    label="Number of people"
+    label="Description"
 ></q-input>
+    <q-input
+    filled
+    dense
+    v-model.trim="form.data.persons"
+    type="text"
+    label="Number of People"
+></q-input>
+    <q-input
+    filled
+    dense
+    v-model.trim="form.data.location"
+    type="text"
+    label="Location"
+></q-input>
+

@@ -1,3 +1,12 @@
+<q-input
+    v-if="form.data?.id"
+    filled
+    dense
+    v-model.trim="form.data.id"
+    type="text"
+    label="id"
+    class="no-pointer-events"
+></q-input>
 <q-select
     filled
     dense
@@ -41,7 +50,9 @@
     type="text"
     label="Background Image"
 ></q-input>
-<div class="bg-grey-2 q-pa-sm rounded-borders">
+<div
+  :class="($q.dark.isActive) ? 'dark_color_correct q-pa-sm rounded-borders' : 'bg-grey-2 q-pa-sm rounded-borders'"
+  >
     Service Days:
     <q-option-group
       name=""
@@ -54,7 +65,6 @@
     />
   </div>
 <div
-  class=""
   style="max-width: max-content"
   >
     <q-input

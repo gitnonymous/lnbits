@@ -1,0 +1,104 @@
+{% extends "public.html" %}{% from "macros.jinja" import window_vars with context
+%}
+{% block page %}
+<template>
+  <div class="row items-center justify-center q-gutter-md">
+    <q-card v-for="item in card_data" :key="item.id" v-if="item.booking_item == 'table' && item.display" class="my-card">
+        {%raw%}
+        <q-card-section class="relative">
+            <div class="text-h6 q-mb-xs">{{item.title}}</div>
+            <div class="ellipsis">@{{item.business_name}} - {{item.location}}</div>
+            <div class="row no-wrap items-center justify-start">
+                <span>
+                    <q-rating size="8px" v-model="stars[item.id]" :max="5" color="primary" />
+                </span> 
+                <span class="text-caption text-grey-6 q-ml-md q-my-md">4.2 (551)</span>
+            </div>
+        </q-card-section>
+        <img :src="item.img_url">
+        <q-card-section class="row q-py-md relative">
+            <div class="q-py-lg wrap" style="height:110px; max-height:110px;">{{item.description}}</div> 
+            <div style="position: absolute; top:-1rem; left:0; width:100%;" class="row justify-center q-gutter-sm">
+                <q-btn class="bg-white text-black" elevated round icon="event_available" /></q-btn>
+                <q-btn class="bg-white text-black" elevated round icon="photo"/></q-btn>
+                <q-btn class="bg-white text-black" elevated round icon="place"></q-btn>
+                <q-btn class="bg-white text-black" elevated round icon="info_outline"></q-btn>
+            </div>
+        </q-card-section>
+        {%endraw%}
+    </q-card>
+    <q-card  v-else-if="item.booking_item == 'room' && item.display" class="my-card">
+        {%raw%}
+        <q-card-section class="relative">
+            <div class="text-h6 q-mb-xs">{{item.title}}</div>
+            <div class="ellipsis">@{{item.business_name}} - {{item.location}}</div>
+            <div class="row no-wrap items-center justify-start">
+                <span>
+                    <q-rating size="8px" v-model="stars[item.id]" :max="5" color="primary" />
+                </span> 
+                <span class="text-caption text-grey-6 q-ml-md q-my-md">4.2 (551)</span>
+            </div>
+            <q-btn flat rounded v-if="item.price" class="card-price">{{item.price}}</q-btn>
+        </q-card-section>
+        <img :src="item.img_url">
+        <q-card-section class="row q-py-md relative">
+            <div class="q-py-lg wrap" style="height:110px; max-height:110px; overflow: hidden;">{{item.description}} </div>  
+            <div style="position: absolute; top:-1rem; left:0; width:100%;" class="row justify-center q-gutter-sm">
+                <q-btn class="bg-white text-black" elevated round icon="event_available" /></q-btn>
+                <q-btn class="bg-white text-black" elevated round icon="photo"/></q-btn>
+                <q-btn class="bg-white text-black" elevated round icon="place"></q-btn>
+                <q-btn class="bg-white text-black" elevated round icon="info_outline"></q-btn>
+            </div>
+        </q-card-section>
+        {%endraw%}
+    </q-card>
+  </div>
+</template>
+
+        
+{% endblock %} {% block scripts %}
+<style>
+    .my-card{
+        background: #fff !important;
+        color: #212121 !important;
+        width: 100%;
+        max-width: 280px !important;
+    }
+    .location-btn{
+        position:absolute;
+        top: 0; 
+        right: 12px; 
+        transform: translateY(-50%);
+    }
+    .my-card img{
+        min-height: 184px !important;
+        max-height: 184px !important;
+    }
+    .card-price{
+        color:#212121;
+        background: white;
+        border: 1px solid #ccc;
+        position: absolute; 
+        bottom:-1.25rem; 
+        left:2px;
+    }
+    .card-btn{
+        /* color: #9c27b0!important; */
+        /* text-shadow:1px 1px 2px #000000;  */
+        /* background:rgba(255,255,255,1);
+        */
+    }
+    @media(max-width: 654px){
+       .my-card{
+           min-width:90vw !important;
+       }
+       .my-card img{
+        object-fit:cover;
+        max-height: 300px !important;
+        
+       }
+
+    }
+</style>
+<script src="static/js/display.js"></script>
+{% endblock %}

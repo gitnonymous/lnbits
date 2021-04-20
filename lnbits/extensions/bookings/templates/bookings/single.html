@@ -1,0 +1,6 @@
+{% extends "public.html" %} {% from "macros.jinja" import window_vars with context
+%} {% block page %}
+<h1>single</h1>
+{% endblock %} {% block scripts %} {{ window_vars(user) }}
+<script src="static/js/single.js"></script>
+{% endblock %}

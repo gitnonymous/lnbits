@@ -1,10 +1,11 @@
 <q-card>
     <q-card-section>
-      <q-btn unelevated color="deep-purple" @click="form.show = true" icon-right="event_available" label="New Booking Item" ></q-btn>
+      <q-btn unelevated color="deep-purple" @click="form.show = true; form.newItem = true" icon-right="event_available" label="New Booking Item" ></q-btn>
     </q-card-section>
   </q-card>
+  {% include "bookings/partials/_booking_item_table.html" %}
 
-  <q-dialog v-model="form.show" @hide="formReset()">
+  <q-dialog v-model="form.show" @hide="formReset(null)">
     <q-card class="q-pa-lg q-pt-xl lnbits__dialog-card">
         <q-select
         filled
@@ -30,7 +31,7 @@
           </q-item>
         </template>
         </q-select>
-      <q-form @submit="sendFormData">
+      <q-form @submit="sendFormData($event)">
         <div class="q-gutter-md q-mt-md" v-if='form.booking.table'> {% include "bookings/partials/_table_booking_form_create.html" %}</div>
         <div class="q-gutter-md q-mt-md" v-if='form.booking.room'> {% include "bookings/partials/_room_booking_form_create.html" %}</div>
         <div class="row q-mt-lg">
@@ -55,3 +56,4 @@
       </q-form>
     </q-card>
   </q-dialog>
+  {% include "bookings/partials/_edit_booking_item.html" %}

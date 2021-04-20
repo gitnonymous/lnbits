@@ -16,7 +16,7 @@ from . import bookings_ext
 # add your endpoints here
 
 
-@bookings_ext.route("/api/v1/tools", methods=["GET"])
+@bookings_ext.route("/api/v1/bookings", methods=["GET"])
 async def api_bookings():
     """Try to add descriptions for others."""
     tools = [
