@@ -56,7 +56,7 @@
 </template>
 
         
-{% endblock %} {% block scripts %}
+{% endblock %} {% block scripts %} {{ window_vars(items) }}
 <style>
     .my-card{
         background: #fff !important;
@@ -100,5 +100,5 @@
 
     }
 </style>
-<script src="static/js/display.js"></script>
+<script src="../static/js/display.js"></script>
 {% endblock %}

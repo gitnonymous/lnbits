@@ -10,7 +10,7 @@ new Vue({
                 booking_item:[{label:'table',icon:'restaurant'},{label:'room',icon:'hotel'}],
                 table_days:[{label:'all', value: 'all'},{label:'M', value: '1'},{label:'T', value: '2'},{label:'W', value: '3'},{label:'T', value: '4'},{label:'F', value: '5'},{label:'S', value: '6'},{label:'S', value: '0'}]
             },
-            booking_url:'/bookings',
+            booking_url:'/bookings/all/'+wallet.alias,
             show: false,
             booking:{
                 table: false,
@@ -115,9 +115,17 @@ new Vue({
     mounted(){
         this.ST8 = window.ST8
     },
-    created: function () {
+    created: async function () {
       window.ST8 = {}
       ST8.formData = JSON.stringify(this.form.data)
       // any ajax calls
+      console.log(wallet.alias);
+      const {data} = await LNbits.api
+            .request(
+            'GET',
+            `/bookings/api/v1/items?d='bob'`,
+            this.g.user.wallets[0].inkey
+        )
+         console.log(data);   
     }
   })

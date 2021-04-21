@@ -3,3 +3,4 @@ function fragment(string){
     d.innerHTML = string
   return d.children[0]
 }
+

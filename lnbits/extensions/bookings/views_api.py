@@ -1,24 +1,20 @@
-# views_api.py is for you API endpoints that could be hit by another service
-
-# add your dependencies here
-
-# import json
-# import httpx
-# (use httpx just like requests, except instead of response.ok there's only the
-#  response.is_error that is its inverse)
-
-from quart import jsonify
+from quart import g, jsonify, request
 from http import HTTPStatus
-
+from lnbits.core.crud import get_user, get_wallet
+from lnbits.core.services import create_invoice, check_invoice_status
+from lnbits.decorators import api_check_wallet_key, api_validate_post_request
 from . import bookings_ext
-
+# from .crud import (
+# #    getBookingItems
+# )
 
 # add your endpoints here
 
-
-@bookings_ext.route("/api/v1/bookings", methods=["GET"])
+# account authorized api calls
+@bookings_ext.route("/api/v1/items", methods=["GET"])
+@api_check_wallet_key('invoice')
 async def api_bookings():
-    """Try to add descriptions for others."""
+    print(request.args.get('d'))
     tools = [
         {
             "name": "Quart",
@@ -38,3 +34,9 @@ async def api_bookings():
     ]
 
     return jsonify(tools), HTTPStatus.OK
+
+
+# public side api calls
+@bookings_ext.route("/api/v1/public", methods=["GET"])
+async def api_public():
+    return HTTPStatus.OK

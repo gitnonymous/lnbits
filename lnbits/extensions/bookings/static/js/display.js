@@ -61,6 +61,16 @@ new Vue({
       }
     },
     mounted(){
-      document.querySelector('.q-toolbar a').innerHTML = "LNbits Booking System"
+      document.querySelector('.q-toolbar a').innerHTML = "<strong>LNbits Booking System</strong>"
+      // document.querySelector('.q-toolbar a').style.color = "#212121"
+      // document.querySelector('.q-toolbar a').style.fontFamily = "Monserat"
+      // document.querySelector('.q-header').style.background = "inherit"
+      // document.querySelector('.q-header button').style.visibility = "hidden"
+    },
+    created(){
+      console.log(user);
+    },
+    beforeCreate(){
+
     }
   })
