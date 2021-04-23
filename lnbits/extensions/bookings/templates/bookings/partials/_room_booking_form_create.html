@@ -16,13 +16,24 @@
     label="Wallet *"
     >
     </q-select>
-    <q-input
-    filled
-    dense
-    v-model.trim="form.data.title"
-    type="text"
-    label="Title"
-></q-input>
+    <div class="row justify-between">
+        <q-input
+        class="col-6 q-pr-sm"
+        filled
+        dense
+        v-model.trim="form.data.business_name"
+        type="text"
+        label="Business Name"
+    ></q-input>
+        <q-input
+        class="col-6"
+        filled
+        dense
+        v-model.trim="form.data.title"
+        type="text"
+        label="Title"
+    ></q-input>
+    </div>
     <q-input
     filled
     dense
@@ -30,13 +41,24 @@
     type="text"
     label="Description"
 ></q-input>
+<div class="row justify-between">
     <q-input
+    class="col-6 q-pr-sm"
     filled
     dense
-    v-model.trim="form.data.persons"
-    type="text"
-    label="Number of People"
+    v-model.trim="form.data.min_persons"
+    type="number"
+    label="Min Persons"
 ></q-input>
+    <q-input
+    class="col-6"
+    filled
+    dense
+    v-model.trim="form.data.max_persons"
+    type="number"
+    label="Max Persons"
+></q-input>
+</div>
     <q-input
     filled
     dense

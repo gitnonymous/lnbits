@@ -15,13 +15,24 @@
     :options="g.user.walletOptions"
     label="Wallet *"
 ></q-select>
+<div class="row justify-between">
     <q-input
+    class="col-6 q-pr-sm"
+    filled
+    dense
+    v-model.trim="form.data.business_name"
+    type="text"
+    label="Business Name"
+  ></q-input>
+    <q-input
+    class="col-6"
     filled
     dense
     v-model.trim="form.data.title"
     type="text"
-    label="Service Title"
-></q-input>
+    label="Service Title">
+  </q-input>
+</div>
     <q-input
     filled
     dense
@@ -29,20 +40,24 @@
     type="text"
     label="Service Description"
 ></q-input>
+<div class="row justify-between">
     <q-input
+    class="col-4 q-pr-sm"
     filled
     dense
     v-model.trim="form.data.covers"
-    type="text"
+    type="number"
     label="Max Covers"
-></q-input>
+  ></q-input>
     <q-input
+    class="col-8"
     filled
     dense
     v-model.trim="form.data.location"
     type="text"
     label="Location"
-></q-input>
+  ></q-input>
+</div>
     <q-input
     filled
     dense
@@ -65,7 +80,7 @@
     />
   </div>
 <div
-  style="max-width: max-content"
+  style="max-width: max-content;"
   >
     <q-input
       filled
@@ -77,6 +92,7 @@
       <template v-slot:append>
         <q-icon name="event" class="cursor-pointer">
          <q-popup-proxy
+          :breakpoint="1200"
             ref="qDateProxy"
             transition-show="scale"
             transition-hide="scale">

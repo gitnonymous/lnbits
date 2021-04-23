@@ -71,7 +71,7 @@
                 flat
                 dense
                 size="xs"
-                @click="deleteBookingItem(props.row.id)"
+                @click="confirm({id:props.row.id, msg:'Do you want delete item?', title: 'Delete Item',ok:'deleteBookingItem'})"
                 icon="delete"
                 color="pink"
               ></q-btn>

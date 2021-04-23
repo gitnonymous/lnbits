@@ -1,15 +1,14 @@
 # from sqlite3 import Row
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 
 
 class Alias(NamedTuple):
    usr: str
-   alias: str
 
 class BookingItem(NamedTuple):
    usr_id: str
    wallet: str
-   id: str
+   id: Optional[str]
    alias: str
    display: bool
    data: str
