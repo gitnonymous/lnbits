@@ -11,7 +11,7 @@ new Vue({
                 booking_item:[{label:'table',icon:'restaurant'},{label:'room',icon:'hotel'}],
                 table_days:[{label:'all', value: 'all'},{label:'M', value: '1'},{label:'T', value: '2'},{label:'W', value: '3'},{label:'T', value: '4'},{label:'F', value: '5'},{label:'S', value: '6'},{label:'S', value: '0'}]
             },
-            booking_url:'/bookings/all/'+this.alias,
+            booking_url:'',
             show: false,
             booking:{
                 table: false,
@@ -26,6 +26,7 @@ new Vue({
         },
         table:{
             data:[],
+            sort: true,
             edit:{
                 table:false,
                 room:false,
@@ -67,7 +68,7 @@ new Vue({
                 this.g.user.wallets[0].inkey,
                 payload
                 ),
-                res && (this.formReset())
+                res.data.success && this.formReset()
                 
                  )
             !p && (
@@ -102,11 +103,12 @@ new Vue({
             // console.log(val);
         },
         formReset(p){
-            this.form.booking[this.form.data.booking_item.label] = false
-            this.table.edit[this.form.data.booking_item.label] = false
+            this.form.booking[this.form.data.booking_item] = false
+            this.table.edit[this.form.data.booking_item] = false
             this.table.edit.show = false
             this.form.data = JSON.parse(this.ST8.formData)
             this.form.newItem = false
+            this.form.show = false
             p && (this.table.edit[p] = false)
         },
         async updateDisplay(id){
@@ -164,6 +166,12 @@ new Vue({
               // console.log('I am triggered on both OK and Cancel')
             })
         },
+        tableSort(){
+            this.table.sort = !this.table.sort
+            this.table.sort 
+            ? this.table.data.sort((a,b)=> (a.booking_item.localeCompare(b.booking_item)))
+            : this.table.data.sort((a,b)=>  (b.booking_item.localeCompare(a.booking_item)))
+        },
         init(p){
             const action ={}
             action.loadItems = async () =>{
@@ -183,7 +191,7 @@ new Vue({
                 `/bookings/api/v1/items?usr=${urlParams.get('usr')}`,
                 this.g.user.wallets[0].inkey
             )
-                return data
+            return data
             }
             return action[p.func](p)
         }
@@ -198,6 +206,7 @@ new Vue({
         // any ajax calls
         const alias = await this.init({func: 'loadAlias'})
         this.alias = alias
+        this.form.booking_url = `/bookings/all/${this.alias}`
         alias && (items = await this.init({func: 'loadItems'}),
         this.table.data = this.tableItemsData(items)
         )

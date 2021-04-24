@@ -1,7 +1,10 @@
 <q-dialog v-model="table.edit.show" @hide="formReset(form.data?.booking_item)">
     <q-card class="q-pa-lg q-pt-xl lnbits__dialog-card">
         {% raw %}
-            <h5 class="text-center q-my-none">Edit <span class="text-capitalize">{{form.data?.booking_item || ''}}</span> Booking Item</h5>
+            <h5
+              class="text-center q-my-none"
+              style="font-family: Montserrat;"
+            >Edit <span class="text-capitalize">{{form.data?.booking_item || ''}}</span> Booking Item</h5>
             {% endraw %}
             <q-form
               @submit="sendFormData($event, 'edit')"

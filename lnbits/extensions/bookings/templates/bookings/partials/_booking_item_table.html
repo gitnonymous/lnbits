@@ -16,7 +16,7 @@
         <template v-slot:header="props">
           <q-tr :props="props">
             <q-th auto-width></q-th>
-            <q-th auto-width class="text-left">Type</q-th>
+            <q-th auto-width class="text-left cursor-pointer" @click="tableSort()">Type</q-th>
             <q-th auto-width class="text-left">Title</q-th>
             <q-th auto-width class="text-left ellipsis">Display</q-th>
             <q-th auto-width></q-th>

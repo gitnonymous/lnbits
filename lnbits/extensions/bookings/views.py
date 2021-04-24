@@ -15,10 +15,5 @@ async def show_single_items(id):
     return await render_template("bookings/single.html", item=item)
     
 @bookings_ext.route("/all/<id>")
-async def show_all_items(id):
-    #search alias table and return user id 
-    # user = await getAlias(id)
-    # print(user)
-    # grab all user booking items from items table as array of json
-    items = [{"id": "dsfsdgsdgg", "title": "Lunch"}]
-    return await render_template("bookings/display.html",items=items)
+async def show_all_items(id):   
+    return await render_template("bookings/display.html")

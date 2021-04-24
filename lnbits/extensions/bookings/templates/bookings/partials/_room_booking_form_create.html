@@ -59,11 +59,53 @@
     label="Max Persons"
 ></q-input>
 </div>
+<div class="row justify-between">
     <q-input
+    class="col-8 q-pr-sm"
     filled
     dense
     v-model.trim="form.data.location"
     type="text"
     label="Location"
+    ></q-input>
+    <q-select
+    class="col-4"
+    filled
+    dense
+    emit-label
+    transition-show="flip-up"
+    transition-hide="flip-down"
+    v-model="form.data.currency"
+    :options="['USD','GBP','EUR']"
+    label="Currency"
+    >
+</div>
+<div class="row justify-between">
+    <q-input
+    class="col-6 q-pr-sm"
+    filled
+    dense
+    v-model.trim="form.data.price"
+    type="number"
+    label="Price"
+></q-input>
+    <q-select
+    class="col-6"
+    filled
+    dense
+    emit-label
+    transition-show="flip-up"
+    transition-hide="flip-down"
+    v-model="form.data.charge_type"
+    :options="['room','person']"
+    label="per room / person"
+    >
+</div>
+<q-input
+filled
+dense
+v-model.trim="form.data.img_url"
+type="text"
+label="Background Image"
 ></q-input>
 

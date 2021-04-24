@@ -38,7 +38,7 @@
                 </span> 
                 <span class="text-caption text-grey-6 q-ml-md q-my-md">4.2 (551)</span>
             </div>
-            <q-btn flat rounded v-if="item.price" class="card-price">{{item.price}}</q-btn>
+            <q-btn flat rounded v-if="item.price" class="card-price">{{item.display_price}}</q-btn>
         </q-card-section>
         <img :src="item.img_url">
         <q-card-section class="row q-py-md relative">
@@ -56,7 +56,7 @@
 </template>
 
         
-{% endblock %} {% block scripts %} {{ window_vars(items) }}
+{% endblock %} {% block scripts %}
 <style>
     .my-card{
         background: #fff !important;

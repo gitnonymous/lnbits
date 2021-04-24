@@ -23,7 +23,7 @@ async def items_get():
     alias = request.args.get('alias')
     usr = request.args.get('usr')
     if alias is not None:
-        items = await getItems(alias)
+        items = await getItems(alias,None)
         return items, HTTPStatus.OK
     elif usr is not None:
         aliasCheck = await getAlias(usr)
@@ -71,6 +71,8 @@ async def items_delete(id):
 
 
 # public side api calls
-@bookings_ext.route("/api/v1/public", methods=["GET"])
-async def api_public():
-    return HTTPStatus.OK
+@bookings_ext.route("/api/v1/public/items", methods=["GET"])
+async def api_public_get_items():
+    alias = request.args.get('alias')
+    items = await getItems(alias, True)
+    return items, HTTPStatus.OK
