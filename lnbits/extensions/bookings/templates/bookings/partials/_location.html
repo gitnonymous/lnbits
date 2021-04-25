@@ -1,0 +1,30 @@
+<template>
+    {%raw%}
+    <q-dialog v-model="map.show" @hide="map.mapIsLoading = true">
+        <q-card style="min-height: 400px; min-width: 350px;">
+          <q-toolbar>
+            <q-avatar>
+                <q-btn flat round dense icon="place" />
+            </q-avatar>
+            <q-toolbar-title><span class="text-weight-bold">@{{map.business_name}}</span></q-toolbar-title>
+            <q-btn flat round dense icon="close" v-close-popup />
+          </q-toolbar>
+          <q-card-section>
+           <iframe
+             v-if="!map.mapIsLoading"
+             width="100%"
+             height="400"
+             frameborder="0"
+             scrolling="no"
+             marginheight="0"
+             marginwidth="0"
+             :src="map.url"
+             style="border: 1px solid black"
+             ></iframe>
+             <div class="text-h6 text-center q-mt-sm">{{map.location}}</div>
+          </q-card-section>
+
+        </q-card>
+      </q-dialog>
+      {%endraw%}
+</template>

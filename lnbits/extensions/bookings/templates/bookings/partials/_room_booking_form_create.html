@@ -72,11 +72,12 @@
     class="col-4"
     filled
     dense
-    emit-label
-    transition-show="flip-up"
-    transition-hide="flip-down"
+    emit-value
+    options-cover="true"
+    transition-show="scale"
+    transition-hide="scale"
     v-model="form.data.currency"
-    :options="['USD','GBP','EUR']"
+    :options="form.currRates"
     label="Currency"
     >
 </div>

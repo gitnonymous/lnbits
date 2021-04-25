@@ -1,0 +1,27 @@
+<template>
+    <q-dialog v-model="gallery.show" @hide="gallery.slide=1">
+        <div class="my-carousel q-pa-md">
+            {%raw%}
+            <div 
+                class="text-h4 text-white text-center q-mb-md"
+                style="font-family: Monserrat; text-shadow: 1px 2px #000000;"
+            >{{gallery.business_name}} Gallery</div>
+            {%endraw%}
+            <q-carousel
+                swipeable
+                animated
+                v-model="gallery.slide"
+                thumbnails
+                infinite
+            >
+                <q-carousel-slide
+                    v-for="(image, index ) in gallery.images"
+                    :key="index+1"
+                    class="caro-img"
+                    :name="index+1"
+                    :img-src="image"
+                  />
+            </q-carousel>
+        </div>
+    </q-dialog>
+  </template>

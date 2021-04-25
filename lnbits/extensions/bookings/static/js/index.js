@@ -6,6 +6,7 @@ new Vue({
         ST8: {},
         alias:'',
         form:{
+            currRates: [{value:'USD', label: 'US Dollar - USD'},{value: 'GBP', label: 'British Pound - GBP'},{value:'EUR', label:'EURO - EUR'}],
             newItem:false,
             items:{
                 booking_item:[{label:'table',icon:'restaurant'},{label:'room',icon:'hotel'}],
@@ -26,7 +27,7 @@ new Vue({
         },
         table:{
             data:[],
-            sort: true,
+            sort: false,
             edit:{
                 table:false,
                 room:false,
@@ -172,6 +173,12 @@ new Vue({
             ? this.table.data.sort((a,b)=> (a.booking_item.localeCompare(b.booking_item)))
             : this.table.data.sort((a,b)=>  (b.booking_item.localeCompare(a.booking_item)))
         },
+        async getCurrencyRates(){
+            const data = await(await fetch('https://gist.githubusercontent.com/Fluidbyte/2973986/raw/8bb35718d0c90fdacb388961c98b8d56abc392c9/Common-Currency.json')).json()
+            let rates = Object.keys(data), codes
+            codes = rates.map(x=> ({value: x, label:`${x} - ${data[x].name}`}))
+            this.form.currRates = codes
+        },
         init(p){
             const action ={}
             action.loadItems = async () =>{
@@ -202,13 +209,14 @@ new Vue({
     created: async function () {
         window.ST8 = {}
         ST8.formData = JSON.stringify(this.form.data)
+        this.getCurrencyRates()
         let items
         // any ajax calls
         const alias = await this.init({func: 'loadAlias'})
         this.alias = alias
         this.form.booking_url = `/bookings/all/${this.alias}`
         alias && (items = await this.init({func: 'loadItems'}),
-        this.table.data = this.tableItemsData(items)
+        this.table.data = this.tableItemsData(items), this.tableSort()
         )
     }
   })
