@@ -25,7 +25,6 @@ async def getAlias(
         if not row:
             return await createAlias(usr)
         else:
-            print(row[0:])
             return row
     except:
         return {"error":"Database Error"}

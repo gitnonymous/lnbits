@@ -30,7 +30,7 @@
     dense
     v-model.trim="form.data.title"
     type="text"
-    label="Service Title">
+    label="Service Title *">
   </q-input>
 </div>
     <q-input
@@ -38,16 +38,16 @@
     dense
     v-model.trim="form.data.description"
     type="text"
-    label="Service Description"
+    label="Service Description *"
 ></q-input>
 <div class="row justify-between">
     <q-input
     class="col-4 q-pr-sm"
     filled
     dense
-    v-model.trim="form.data.covers"
+    v-model.trim="form.data.acca"
     type="number"
-    label="Max Covers"
+    label="Max Covers *"
   ></q-input>
     <q-input
     class="col-8"
@@ -75,40 +75,30 @@
       v-model="form.data.table_days"
       :options="form.items.table_days"
       type="checkbox"
-      color="primary"
+      color="deep-purple"
       inline
     />
   </div>
-<div
-  style="max-width: max-content;"
-  >
-    <q-input
-      filled
-      v-model="form.data.date"
-      mask="date"
-      :rules="[]"
-      label="Date"
-      >
-      <template v-slot:append>
-        <q-icon name="event" class="cursor-pointer">
-         <q-popup-proxy
-          :breakpoint="1200"
-            ref="qDateProxy"
-            transition-show="scale"
-            transition-hide="scale">
-            <q-date
-              v-model="form.data.date"
-              >
-              <div class="row items-center justify-end">
-               <q-btn
-                  v-close-popup
-                  label="Close"
-                  color="primary"
-                  flat />
-              </div>
-            </q-date>
-          </q-popup-proxy>
-        </q-icon>
-      </template>
-    </q-input>
+<div :class="($q.dark.isActive) ? 'dark_color_correct q-pa-sm rounded-borders row items-center' : 'bg-grey-2 q-pa-sm rounded-borders row items-center'"
+>
+  {%raw%}
+  <div class="column items-center col-2">
+    <q-btn icon="event" round color="purple">
+      <q-popup-proxy
+        @before-show="updateProxy"
+        transition-show="scale"
+        transition-hide="scale"
+        :breakpoint="1200">
+        <q-date v-model="form.data.proxyDate" color="deep-purple" multiple :options="dateOptions">
+          <div class="row items-center justify-end q-gutter-sm">
+            <q-btn label="Cancel/Delete" color="primary" flat v-close-popup @click="form.data.date = []" /></q-btn>
+            <q-btn label="OK" color="primary" flat @click="save" v-close-popup /></q-btn>
+          </div>
+        </q-date>
+      </q-popup-proxy>
+    </q-btn>
+  </div>
+  <span v-if="form.data.date.length" class="wrap justify-center col-10 text-center q-px-sm" ><strong style="font-size:1rem; width:100%;">{{dateDisplay}}</strong></span>
+  <span v-else class="col-8 text-center" ><strong style="font-size:1.4rem;">Select Date</strong></span>
+  {%endraw%}
   </div>

@@ -1,0 +1,80 @@
+<template>
+    {%raw%}
+    <q-dialog v-model="booking.show" @hide="formReset()">
+        <q-card class="lnbits__dialog-card">
+            <q-toolbar>
+                <q-avatar>
+                    <q-btn flat round dense icon="event_available" />
+                </q-avatar>
+                <q-toolbar-title class="text-center"><span class="text-weight-bold">{{booking.title}}</span></q-toolbar-title>
+                <q-btn flat round dense icon="close" v-close-popup />
+            </q-toolbar>
+          <q-card-section>
+           <div
+              v-if="booking.total"
+              class="text-center q-pb-lg row justify-between items-center no-wrap" 
+              style="font-size:2rem; width: 100%;"
+              >
+              <q-img :src="booking.img || img_default" style="width: 80px; height:auto; border-radius:15px;"></q-img>
+              <span class="wrap">{{booking.total}}</span>
+            
+            </div>
+           <div
+              v-else
+              class="text-center q-pb-lg column justify-between items-center no-wrap" 
+              style="font-size:1.5rem; width: 100%;"
+              >
+              <q-img :src="booking.img || img_default" style="width: 80px; height:auto; border-radius:15px;"></q-img>
+              <span class="wrap q-mt-sm">@{{booking.business_name}}</span>
+            
+            </div>
+            <div :class="($q.dark.isActive) ? 'dark_color_correct q-pa-sm rounded-borders row items-center q-mb-md no-wrap' : 'bg-grey-2 q-pa-sm rounded-borders row items-center q-mb-md no-wrap'">
+              <div class="column items-start q-mr-md col-2">
+                <q-btn icon="event" round color="purple">
+                  <q-popup-proxy
+                    @before-show="updateProxy"
+                    transition-show="scale"
+                    transition-hide="scale"
+                    :breakpoint="1200">
+                    <q-date
+                      v-model="booking.proxyDate"
+                      range
+                      multiple
+                      :options="dateOptions"
+                      color="deep-purple"
+                      >
+                      <div class="row items-center justify-end q-gutter-sm">
+                        <q-btn label="Cancel" color="primary" flat v-close-popup @click="booking.datePicked = false; booking.total = ''"/></q-btn>
+                        <q-btn label="OK" color="primary" flat @click="save" v-close-popup /></q-btn>
+                      </div>
+                    </q-date>
+                  </q-popup-proxy>
+                </q-btn>
+               
+              </div>
+                <span v-if="booking.date.length" class="wrap justify-center col-10 text-center q-pr-md" ><strong style="font-size:1rem; width:100%;">{{dateDisplay}}</strong></span>
+                <span v-else class="col-8 text-center" ><strong style="font-size:1.4rem;">Select Date</strong></span>
+            </div>
+            <q-form @submit="submitForm($event)" v-if="booking.datePicked" class="q-gutter-md q-mt-md">
+              {%endraw%}
+              {% include "bookings/partials/_booking_details.html" %}
+              {%raw%}
+                <div class="row q-mt-lg">
+                  <q-btn
+                    unelevated
+                    color="deep-purple"
+                    :disable="
+                        form.data.name == null ||
+                        form.data.email == null ||
+                        !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(form.data.email)
+                        "
+                    type="submit"
+                    >Book {{booking.booking_item}}</q-btn>
+                  <q-btn v-close-popup flat color="grey" class="q-ml-auto">Cancel</q-btn>
+                </div>
+              </q-form>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+      {%endraw%}
+</template>

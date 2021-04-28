@@ -31,7 +31,7 @@
         dense
         v-model.trim="form.data.title"
         type="text"
-        label="Title"
+        label="Title *"
     ></q-input>
     </div>
     <q-input
@@ -39,11 +39,11 @@
     dense
     v-model.trim="form.data.description"
     type="text"
-    label="Description"
+    label="Description *"
 ></q-input>
 <div class="row justify-between">
     <q-input
-    class="col-6 q-pr-sm"
+    class="col-4 q-pr-sm"
     filled
     dense
     v-model.trim="form.data.min_persons"
@@ -51,12 +51,20 @@
     label="Min Persons"
 ></q-input>
     <q-input
-    class="col-6"
+    class="col-4 q-pr-sm"
     filled
     dense
     v-model.trim="form.data.max_persons"
     type="number"
     label="Max Persons"
+></q-input>
+<q-input
+    class="col-4"
+    filled
+    dense
+    v-model.trim="form.data.acca"
+    type="number"
+    label="Rooms *"
 ></q-input>
 </div>
 <div class="row justify-between">
@@ -73,7 +81,7 @@
     filled
     dense
     emit-value
-    options-cover="true"
+    options-cover
     transition-show="scale"
     transition-hide="scale"
     v-model="form.data.currency"
@@ -83,7 +91,7 @@
 </div>
 <div class="row justify-between">
     <q-input
-    class="col-6 q-pr-sm"
+    class="col-5 q-pr-sm"
     filled
     dense
     v-model.trim="form.data.price"
@@ -91,7 +99,7 @@
     label="Price"
 ></q-input>
     <q-select
-    class="col-6"
+    class="col-7"
     filled
     dense
     emit-label
@@ -100,7 +108,7 @@
     v-model="form.data.charge_type"
     :options="['room','person']"
     label="per room / person"
-    >
+    ></q-select>
 </div>
 <q-input
 filled

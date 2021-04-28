@@ -11,8 +11,7 @@ async def index():
 
 @bookings_ext.route("/single/<id>")
 async def show_single_items(id):
-    item={"id":"sdfhkhsdkfh","title":"Table"}
-    return await render_template("bookings/single.html", item=item)
+    return await render_template("bookings/single.html")
     
 @bookings_ext.route("/all/<id>")
 async def show_all_items(id):   

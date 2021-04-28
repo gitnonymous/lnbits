@@ -1,0 +1,18 @@
+<template>
+{%raw%}
+    <q-input
+    filled
+    dense
+    v-model.trim="form.data.name"
+    type="text"
+    label="Name *"
+    ></q-input>
+    <q-input
+    filled
+    dense
+    v-model.trim="form.data.email"
+    type="email"
+    label="Email *"
+    ></q-input>
+{%endraw%}
+</template>

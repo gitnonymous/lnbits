@@ -47,7 +47,10 @@
             unelevated
             color="deep-purple"
             :disable="
-                form.data.wallet == null
+                form.data.wallet == null ||
+                form.data.title == null ||
+                form.data.description == null ||
+                form.data.acca == null
                 "
             type="submit"
             >Create Booking Item</q-btn>

@@ -10,7 +10,7 @@ new Vue({
             newItem:false,
             items:{
                 booking_item:[{label:'table',icon:'restaurant'},{label:'room',icon:'hotel'}],
-                table_days:[{label:'all', value: 'all'},{label:'M', value: '1'},{label:'T', value: '2'},{label:'W', value: '3'},{label:'T', value: '4'},{label:'F', value: '5'},{label:'S', value: '6'},{label:'S', value: '0'}]
+                table_days:[{label:'M', value: '1'},{label:'T', value: '2'},{label:'W', value: '3'},{label:'T', value: '4'},{label:'F', value: '5'},{label:'S', value: '6'},{label:'S', value: '0'}]
             },
             booking_url:'',
             show: false,
@@ -21,7 +21,8 @@ new Vue({
             data:{
                 wallet: null,
                 booking_item: '',
-                date: '', //moment().format('YYYY/MM/DD'),
+                date:[],
+                proxyDate:[],
                 table_days:[]
             }
         },
@@ -73,7 +74,6 @@ new Vue({
                 
                  )
             !p && (
-                // send POST to create booking item && update table
                 data = Object.assign({...this.form.data},{booking_item:this.form.data.booking_item.label}),
                 payload = {
                     usr_id: this.g.user.wallets[0].user,
@@ -104,13 +104,12 @@ new Vue({
             // console.log(val);
         },
         formReset(p){
-            this.form.booking[this.form.data.booking_item] = false
-            this.table.edit[this.form.data.booking_item] = false
-            this.table.edit.show = false
+            for(x in this.form.booking){this.form.booking[x] = false}
+            for(x in this.table.edit){this.table.edit[x] = false}
             this.form.data = JSON.parse(this.ST8.formData)
             this.form.newItem = false
             this.form.show = false
-            p && (this.table.edit[p] = false)
+            // p && (this.table.edit[p] = false)
         },
         async updateDisplay(id){
             this.table.data.filter(x=> x.id == id)[0].display = !this.table.data.filter(x=> x.id == id)[0].display
@@ -144,7 +143,7 @@ new Vue({
         },
         editBookingItem(id){
             let data = this.table.data.filter(x=> x.id == id)[0]
-            this.form.data = data
+            this.form.data = {...data}
             this.table.edit.show = true
             this.table.edit[data.booking_item] = true
         },
@@ -201,6 +200,33 @@ new Vue({
             return data
             }
             return action[p.func](p)
+        },
+        updateProxy () {
+            this.form.data.date = [moment().format('yy/MM/D')]
+            this.form.data.proxyDate = this.form.data.date
+        },
+        save () {
+        this.form.data.date = this.form.data.proxyDate
+        console.log(this.form.data.date);
+        },
+        datePickerFormat(){
+            let date_val, cur_date = this.form.data.date
+            let len = this.form.data.date?.length
+            len === 1 && typeof cur_date[0] == 'string' && (date_val = cur_date[0])
+            len === 1 && typeof cur_date[0] == 'object' && (date_val = `${cur_date[0].from} to ${cur_date[0].to}`)
+            len > 1 && typeof cur_date[0] == 'string' && (date_val = cur_date.join(', '))
+            return date_val
+        },
+        dateOptions(date) {
+            let days = [], 
+            beforeToday = date >= moment(new Date()).format('yy/MM/D') 
+            beforeToday && days.push(date)
+            return +days.some(day=> day == date) === 1
+        }
+    },
+    computed:{
+        dateDisplay(){
+            return this.datePickerFormat()
         }
     },
     mounted(){

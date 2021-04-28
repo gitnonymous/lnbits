@@ -7,6 +7,12 @@ new Vue({
         stars: {},
         card_data:[],
         sort: true,
+        img_default: 'https//picsum.photos/400',
+        form:{
+          data:{
+
+          }
+        },
         gallery: {
           show: false,
           slide:1,
@@ -17,10 +23,23 @@ new Vue({
           url: `https://www.openstreetmap.org/export/embed.html?bbox=-2.493209838867188%2C53.50540525319918%2C-2.246360778808594%2C53.61980121473449&amp;layer=mapnik&amp;marker=53.56274386269267%2C-2.3699569702148438`,
           mapIsLoading:true,
           show: false,
+          gps:{
+            lat:'',
+            lon:''
+          }
+        },
+        booking:{
+          datePicked: false,
+          show:false,
+          proxyDate: '',
+          date: [] //[moment().format('yy/MM/D')]
         }
       }
     },
     methods:{
+      async submitForm(e){
+        e.preventDefault()
+      },
       init(p){
         const alias = location.pathname.split('/')[3]
         const action ={}
@@ -58,18 +77,110 @@ new Vue({
         this.gallery.show = true
       },
       async showLocation(id){
-        let card = this.card_data.find(x=> x.id == id), bb = 0.006
+        let card = this.card_data.find(x=> x.id == id), bb = 0.008
         this.map.business_name = card.business_name
         this.map.location = card.location
         this.map.show = true
         this.$q.loading.show({message: 'Loading location map...'})
-        const lonlat = await(await fetch(`https://geocode.xyz/${card.location.replace(/, /g,'+')}&auth=913139462328678588578x56349?json=1`)).json()
-        const omurl = `https://www.openstreetmap.org/export/embed.html?bbox=${(+lonlat.longt-bb).toFixed(5)}%2C${(+lonlat.latt-bb).toFixed(5)}%2C${(+lonlat.longt+bb).toFixed(5)}%2C${(+lonlat.latt+bb).toFixed(5)}&amp;layer=mapnik&amp;marker=${(+lonlat.longt).toFixed(3)}%2C${(+lonlat.latt).toFixed(3)}`
+        const lonlat = await(await fetch(`https://geocode.xyz/${card.location.replace(/[,\s+] /g,'+')}&auth=913139462328678588578x56349?json=1`)).json()
+        const omurl = `https://www.openstreetmap.org/export/embed.html?bbox=${this.gps(+lonlat.longt-bb)},${this.gps(+lonlat.latt-bb)},${this.gps(+lonlat.longt+bb)},${this.gps(+lonlat.latt+bb)}&layer=mapnik&marker=${lonlat.latt},${lonlat.longt}`
         this.map.url = omurl
+        this.map.gps.lon = lonlat.longt
+        this.map.gps.lat = lonlat.latt
         lonlat && (this.$q.loading.hide(),this.map.mapIsLoading = false)
+      },
+      showBooking(id){
+        let item = this.card_data.find(x=> x.id == id)
+        this.booking.title = item.title; this.booking.business_name = item.business_name
+        this.booking.booking_item = item.booking_item
+        this.booking.id = id
+        this.booking.img = item.img_url.split(',')[0]
+        this.booking.show = true
+      },
+      gps(value){
+        return value.toFixed(5)
+      },
+      copyToClip(p){
+        let text
+        p == 'gps' && (text = `${this.map.gps.lat},${this.map.gps.lon}`, this.copyText(text, 'GPS copied to clipboard!'))
+      },
+      loadStars(){
+        let stars = {}
+        this.card_data.map(x=> {
+          let rating = 4+ +(Math.random()).toFixed(1), total = 100 + Math.floor(Math.random() * 1000)
+          x.stars ? stars[x] = x.stars : stars[x.id] = {total, rating, selected: rating}
+        })
+        this.stars = stars
+      },
+      updateProxy () {
+        this.booking.date = []
+        this.booking.proxyDate = this.booking.date
+      },
+      async save () {
+        let item = this.card_data.find(x=> x.id == this.booking.id)
+        this.booking.date = this.booking.proxyDate
+        this.form.data.date = this.booking.date
+        const validDates = this.checkDates(this.booking.date)
+        validDates 
+          ? (item.price && (this.booking.total = this.calcPrice()), this.booking.datePicked = true)
+          : (
+            this.booking.date = [], this.booking.datePicked = false, 
+            Quasar.plugins.Notify.create({message: 'Selected dates invalid!',color:'warning', timeout: 3000 })
+            )
+        
+      },
+      formReset(){
+        this.booking.datePicked = false
+        this.booking.date = []; this.booking.total = ""
+        this.form.data = {}
+      },
+      datePickerFormat(){
+        let date_val, cur_date = this.booking.date
+        let len = this.booking.date?.length
+        len === 1 && typeof cur_date[0] == 'string' && (date_val = cur_date[0])
+        len === 1 && typeof cur_date[0] == 'object' && (date_val = `${cur_date[0].from} to ${cur_date[0].to}`)
+        len > 1 && typeof cur_date[0] == 'string' && (date_val = cur_date.join(', '))
+        return date_val
+      },
+      dateOptions(date) {
+        let days = [], item = this.card_data.find(x=> x.id == this.booking.id), tdays = item?.table_days || [],
+        sdays = item?.date ? item.date : [], beforeToday = date >= moment(new Date()).format('yy/MM/D') 
+        tdays.some(x=> +x == moment(new Date(date)).days()) && ( beforeToday && days.push(date))
+        sdays.some(day=> day == date) && days.push(date)
+        !tdays.length && !sdays.length && ( beforeToday && days.push(date))
+        return +days.some(day=> day == date) === 1
+        // return date >= '2021/04/03' && date <= '2021/06/15'
+      },
+      checkDates(date){
+        let check, dates, bk = this.booking.booking_item
+        typeof date[0] == 'string' && 
+          (check = date.every(x=> this.dateOptions(x)),bk == 'table' && date.length > 1 && (check = false)), 
+        date.length == 1 && typeof date[0] == 'object' && (
+          dates = inBetweenDates({startDate: date[0].from, endDate: date[0].to}),
+          check = dates.every(x=> this.dateOptions(x)),
+          bk == 'table' && dates.length > 1 && (check = false)
+          )
+  
+        return check
+      },
+      calcPrice(){
+        let price, qty, date = this.form.data.date
+        const item = this.card_data.find(x=> x.id == this.booking.id)
+        typeof date[0] == 'string' 
+          ? qty = date.length
+          : qty = (inBetweenDates({startDate: date[0].from, endDate: date[0].to})).length
+        price = +item.price * qty
+        this.form.data.total = price
+        return LNbits.utils.formatCurrency(price, item.currency)
+      }
+      
+    },
+    computed:{
+      dateDisplay(){
+        return this.datePickerFormat()
       }
     },
-    mounted(){
+    mounted(){  
       document.querySelector('.q-toolbar a').innerHTML = "<strong>LNbits Booking System</strong>"
       // document.querySelector('.q-toolbar a').style.color = "#212121"
       // document.querySelector('.q-toolbar a').style.fontFamily = "Monserat"
@@ -80,6 +191,7 @@ new Vue({
       const items = await this.init({func:'loadItems'})
       this.card_data = this.tableItemsData(items)
       this.displaySort()
+      this.loadStars()
       
     }
   })

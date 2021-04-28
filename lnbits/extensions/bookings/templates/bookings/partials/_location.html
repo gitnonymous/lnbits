@@ -21,8 +21,18 @@
              :src="map.url"
              style="border: 1px solid black"
              ></iframe>
-             <div class="text-h6 text-center q-mt-sm">{{map.location}}</div>
-          </q-card-section>
+            </q-card-section>
+            <q-card-section class="relative column">
+                <q-btn
+                  elevated
+                  round  
+                  icon="content_copy"
+                  class="absolute self-center bg-white text-black"
+                  style="top:-2.3rem;"
+                  @click="copyToClip('gps')"
+                  ></q-btn>
+                <div class="text-h6 text-center">{{map.location}}</div>
+            </q-card-section>
 
         </q-card>
       </q-dialog>
