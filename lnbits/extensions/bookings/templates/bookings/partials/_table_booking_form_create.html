@@ -58,13 +58,6 @@
     label="Location"
   ></q-input>
 </div>
-    <q-input
-    filled
-    dense
-    v-model.trim="form.data.img_url"
-    type="text"
-    label="Background Image"
-></q-input>
 <div
   :class="($q.dark.isActive) ? 'dark_color_correct q-pa-sm rounded-borders' : 'bg-grey-2 q-pa-sm rounded-borders'"
   >
@@ -99,6 +92,30 @@
     </q-btn>
   </div>
   <span v-if="form.data.date.length" class="wrap justify-center col-10 text-center q-px-sm" ><strong style="font-size:1rem; width:100%;">{{dateDisplay}}</strong></span>
-  <span v-else class="col-8 text-center" ><strong style="font-size:1.4rem;">Select Date</strong></span>
+  <span v-else class="col-8 text-center" ><strong style="font-size:1.4rem;">Select Dates</strong></span>
   {%endraw%}
   </div>
+  <q-input
+    filled
+    dense
+    autogrow
+    v-model.trim="form.data.img_url"
+    type="text"
+    label="Background Images"
+  ></q-input>
+  <q-input
+    v-model.trim="form.data.info_text"
+    filled
+    dense
+    autogrow
+    type="text"
+    label="Info Text"
+    /></q-input>
+  <q-input
+    v-model.trim="form.data.info_iframe"
+    filled
+    dense
+    autogrow
+    type="text"
+    label="Info iframe links"
+    /></q-input>

@@ -1,6 +1,6 @@
 <template>
     {%raw%}
-    <q-dialog v-model="booking.show" @hide="formReset()">
+    <q-dialog v-model="booking.show" @hide="formReset()" persistent>
         <q-card class="lnbits__dialog-card">
             <q-toolbar>
                 <q-avatar>
@@ -15,7 +15,7 @@
               class="text-center q-pb-lg row justify-between items-center no-wrap" 
               style="font-size:2rem; width: 100%;"
               >
-              <q-img :src="booking.img || img_default" style="width: 80px; height:auto; border-radius:15px;"></q-img>
+              <q-img :src="booking.img || img_default" style="width: 80px; height:auto; border-radius:10px;"></q-img>
               <span class="wrap">{{booking.total}}</span>
             
             </div>
@@ -24,7 +24,7 @@
               class="text-center q-pb-lg column justify-between items-center no-wrap" 
               style="font-size:1.5rem; width: 100%;"
               >
-              <q-img :src="booking.img || img_default" style="width: 80px; height:auto; border-radius:15px;"></q-img>
+              <q-img :src="booking.img || img_default" style="width: 80px; height:auto; border-radius:10px;"></q-img>
               <span class="wrap q-mt-sm">@{{booking.business_name}}</span>
             
             </div>
@@ -61,12 +61,26 @@
               {%raw%}
                 <div class="row q-mt-lg">
                   <q-btn
+                  class="text-capitalize"
+                  v-if="isSubmitting"
+                  unelevated
+                  color="deep-purple"
+                  >creating invoice
+                  <q-spinner
+                    class="q-ml-md"
+                    color="white"
+                    size="1rem"
+                  />
+                  </q-btn>
+                  <q-btn
+                  v-else
                     unelevated
                     color="deep-purple"
                     :disable="
                         form.data.name == null ||
                         form.data.email == null ||
-                        !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(form.data.email)
+                        !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(form.data.email) ||
+                        booking.booking_item == 'table' && form.data.acca == null|| form.data.acca == ''
                         "
                     type="submit"
                     >Book {{booking.booking_item}}</q-btn>

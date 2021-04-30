@@ -63,6 +63,7 @@ new Vue({
                     data
                 },
                 delete payload.data.wallet,
+                console.log(data),
                 payload.data = JSON.stringify(payload.data),
                 res = await LNbits.api
                 .request('PUT',

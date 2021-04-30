@@ -32,7 +32,7 @@
                 <q-btn class="bg-white text-black" elevated round icon="event_available" @click="showBooking(item.id)"/></q-btn>
                 <q-btn class="bg-white text-black" elevated round icon="photo" @click="showGallery(item.id)"/></q-btn>
                 <q-btn class="bg-white text-black" elevated round icon="place" @click="showLocation(item.id)"></q-btn>
-                <q-btn class="bg-white text-black" elevated round icon="info_outline"></q-btn>
+                <q-btn class="bg-white text-black" elevated round icon="info_outline" @click="showInfo(item.id)"></q-btn>
             </div>
         </q-card-section>
         {%endraw%}
@@ -67,7 +67,7 @@
                 <q-btn class="bg-white text-black" elevated round icon="event_available" @click="showBooking(item.id)"/></q-btn>
                 <q-btn class="bg-white text-black" elevated round icon="photo" @click="showGallery(item.id)"/></q-btn>
                 <q-btn class="bg-white text-black" elevated round icon="place" @click="showLocation(item.id)"/></q-btn>
-                <q-btn class="bg-white text-black" elevated round icon="info_outline"/></q-btn>
+                <q-btn class="bg-white text-black" elevated round icon="info_outline" @click="showInfo(item.id)"/></q-btn>
             </div>
         </q-card-section>
         {%endraw%}
@@ -77,6 +77,7 @@
 {% include "bookings/partials/_gallery.html" %} 
 {% include "bookings/partials/_location.html" %} 
 {% include "bookings/partials/_booking.html" %} 
+{% include "bookings/partials/_info.html" %} 
         
 {% endblock %} {% block scripts %}
 <style>
@@ -133,8 +134,17 @@
         max-height: 300px !important;
         
        }
+       .my-info{
+           padding:1px;
+       }
 
     }
+    @media(min-width: 655px){
+        .my-info{
+           padding:0 30%;
+       }
+    }
+   
 </style>
 <script src="../static/js/display.js"></script>
 <script src="../static/js/app.js"></script>

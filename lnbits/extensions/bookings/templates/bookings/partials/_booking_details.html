@@ -7,12 +7,48 @@
     type="text"
     label="Name *"
     ></q-input>
-    <q-input
+    <q-input 
     filled
     dense
     v-model.trim="form.data.email"
     type="email"
     label="Email *"
     ></q-input>
+    <q-input
+    v-if="booking?.charge_type == 'person'"
+    filled
+    dense
+    v-model.trim="form.data.people"
+    :min="booking.item.min_persons"
+    :max="booking.item.max_persons"
+    required
+    type="number"
+    label="Number of people *"
+    @input="(form.data.people >= booking.item.min_persons && form.data.people <= booking.item.max_persons ? '' 
+    : form.data.people = 1 );  booking.total = calcPrice()"
+    ></q-input>
+    <div
+      v-if="booking.item.booking_item == 'table'"
+      class="row justify-between"
+      
+      >
+        <q-input
+        class="col-6 q-pr-sm"
+        filled
+        dense
+        v-model.trim="form.data.acca"
+        type="number"
+        label="Guests *"
+        @input="form.data.acca <= 0 ? form.data.acca = 1 : ''"
+        ></q-input>
+        <q-input
+        class="col-6"
+        filled
+        dense
+        v-model.trim="form.data.phone"
+        type="text"
+        label="Phone"
+        ></q-input>
+    </div>
 {%endraw%}
 </template>

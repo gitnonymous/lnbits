@@ -1,0 +1,41 @@
+<template>
+    {%raw%}
+<q-dialog v-model="info.show" @hide="" full-width>
+    <div class="q-pa-sm q-gutter-sm" style="box-shadow: none; width:95vw;">
+        <q-card v-if="info.item.info_iframe" v-for="(link, index) in info.info_iframe">
+            <q-toolbar v-if="index == 0">
+                <q-avatar>
+                    <q-btn flat round dense icon="info_outline" />
+                </q-avatar>
+                <q-toolbar-title><span class="text-weight-bold">Info @{{info.item.business_name}}</span></q-toolbar-title>
+                <q-btn flat round dense icon="close" v-close-popup />
+              </q-toolbar>
+            <q-card-section>
+                <iframe
+                width="100%"
+                height="600"
+                frameborder="0"
+                scrolling="yes"
+                marginheight="0"
+                marginwidth="0"
+                :src="link">
+                </iframe>
+            </q-card-section>
+        </q-card>
+        <q-card v-if="!info.item.info_iframe">
+            <q-toolbar>
+                <q-avatar>
+                    <q-btn flat round dense icon="info_outline" />
+                </q-avatar>
+                <q-toolbar-title><span class="text-weight-bold">Info @{{info.item.business_name}}</span></q-toolbar-title>
+                <q-btn flat round dense icon="close" v-close-popup />
+              </q-toolbar>
+            <q-card-section>
+                <pre v-if="info.item.info_text && !info.item.info_iframe" style="font-family: 'Montserrat';">{{info.item.info_text}}</pre>
+                <div v-else class="text-h5 text-center q-pa-xl">No Information</div>
+            </q-card-section>
+        </q-card>
+    </div>
+</q-dialog>
+{%endraw%}
+</template>

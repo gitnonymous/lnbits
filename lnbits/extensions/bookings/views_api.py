@@ -11,7 +11,8 @@ from .crud import (
    deleteItem,
    getAlias,
    updateDisplay,
-   updateItem
+   updateItem,
+   processBooking
 )
 
 # add your endpoints here
@@ -76,3 +77,10 @@ async def api_public_get_items():
     alias = request.args.get('alias')
     items = await getItems(alias, True)
     return items, HTTPStatus.OK
+
+@bookings_ext.route("/api/v1/public/items", methods=["POST"])
+async def api_public_post_item():
+    data = await request.data
+    data = json.loads(data)
+    payment = await processBooking(data)
+    return payment, HTTPStatus.OK

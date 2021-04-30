@@ -1,14 +1,15 @@
 <template>
     <q-dialog v-model="gallery.show" @hide="gallery.slide=1">
-        <div class="my-carousel q-pa-md">
+        <q-card class="my-carousel q-pa-md" style="transform: rotate(1.5deg);">
             {%raw%}
-            <div 
-                class="text-h4 text-white text-center q-mb-md q-pa-md rounded shadow-2"
-                style="font-family: Monserrat; 
-                text-shadow: 1px 2px #000000; 
-                backdrop-filter: blur(8px);
-                background-color: rgba(0,0,0,0.2);"
-            >{{gallery.business_name}} Gallery</div>
+            
+            <q-toolbar>
+                <q-avatar>
+                    <q-btn flat round dense icon="photo" />
+                </q-avatar>
+                <q-toolbar-title style="text-overflow: unset !important; text-align: center;"><span class="text-weight-bold" style="white-space:normal;">{{gallery.business_name}} Gallery</span></q-toolbar-title>
+                <q-btn flat round dense icon="close" v-close-popup />
+              </q-toolbar>
             {%endraw%}
             <q-carousel
                 swipeable
@@ -25,6 +26,6 @@
                     :img-src="image"
                   />
             </q-carousel>
-        </div>
+        </q-card>
     </q-dialog>
   </template>

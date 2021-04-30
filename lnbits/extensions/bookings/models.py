@@ -13,6 +13,17 @@ class BookingItem(NamedTuple):
    display: bool
    data: str
 
+class BookingEvent(NamedTuple):
+   id: Optional[str]
+   cus_id: str
+   item_id: str
+   alias: str
+   bk_type: str
+   acca: int
+   bk_exp: int
+   paid: bool
+   date: str
+   data: str
 
 
 

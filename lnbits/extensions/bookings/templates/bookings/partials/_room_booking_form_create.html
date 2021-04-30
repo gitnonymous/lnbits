@@ -110,11 +110,37 @@
     label="per room / person"
     ></q-select>
 </div>
-<q-input
-filled
-dense
-v-model.trim="form.data.img_url"
-type="text"
-label="Background Image"
-></q-input>
-
+<q-select
+    filled
+    dense
+    emit-label
+    transition-show="flip-up"
+    transition-hide="flip-down"
+    v-model="form.data.multi_days"
+    :options="[{label:'true', value: 1},{label: 'false',value: 0}]"
+    label="Muli booking days"
+    ></q-select>
+    <q-input
+    filled
+    dense
+    autogrow
+    v-model.trim="form.data.img_url"
+    type="text"
+    label="Background Images"
+    ></q-input>
+    <q-input
+    v-model.trim="form.data.info_text"
+    filled
+    dense
+    autogrow
+    type="text"
+    label="Info Text"
+    /></q-input>
+    <q-input
+    v-model.trim="form.data.info_iframe"
+    filled
+    dense
+    autogrow
+    type="text"
+    label="Info iframe links"
+    /></q-input>

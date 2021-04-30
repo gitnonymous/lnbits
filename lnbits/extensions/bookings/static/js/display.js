@@ -6,8 +6,10 @@ new Vue({
       return{
         stars: {},
         card_data:[],
+        cus_id: '',
         sort: true,
         img_default: 'https//picsum.photos/400',
+        isSubmitting: false,
         form:{
           data:{
 
@@ -33,12 +35,30 @@ new Vue({
           show:false,
           proxyDate: '',
           date: [] //[moment().format('yy/MM/D')]
+        },
+        info:{
+          show: false,
+          item:''
         }
       }
     },
     methods:{
       async submitForm(e){
         e.preventDefault()
+        const payload = Object.assign(
+          {...this.form.data},
+          {
+            item_id: this.booking.item.id,
+            alias: location.pathname.split('/')[3],
+            cus_id: this.cus_id,
+            bk_type: this.booking.item.booking_item
+          }
+        );
+        /[to]|[from]/.test(payload.date.toString()) && (payload.date = inBetweenDates({startDate: payload.date[0].from, endDate: payload.date[0].to}))
+        this.isSubmitting =true
+        let res = await LNbits.api.request('POST',`/bookings/api/v1/public/items`,null,payload)
+        console.log(res.data)
+        setTimeout(_=> this.isSubmitting = false, 2000)
       },
       init(p){
         const alias = location.pathname.split('/')[3]
@@ -91,11 +111,21 @@ new Vue({
       },
       showBooking(id){
         let item = this.card_data.find(x=> x.id == id)
+        this.booking.item = this.card_data.find(x=> x.id == id)
+        console.log(this.booking.item);
         this.booking.title = item.title; this.booking.business_name = item.business_name
         this.booking.booking_item = item.booking_item
-        this.booking.id = id
+        this.booking.multi_days = item?.multi_days?.value
+        this.booking.id = id; item.charge_type && (this.booking.charge_type = item.charge_type)
         this.booking.img = item.img_url.split(',')[0]
         this.booking.show = true
+      },
+      showInfo(id){
+        this.info.item = this.card_data.find(x=> x.id == id)
+        let item = this.info.item
+        item?.info_iframe ? this.info.info_iframe =item.info_iframe.split(',') : this.info.info_iframe = []
+        this.info.show = true
+        setTimeout(_=> document.querySelector('.q-dialog__inner').classList.add('my-info'),10 )
       },
       gps(value){
         return value.toFixed(5)
@@ -120,18 +150,28 @@ new Vue({
         let item = this.card_data.find(x=> x.id == this.booking.id)
         this.booking.date = this.booking.proxyDate
         this.form.data.date = this.booking.date
+        this.form.data.acca = 1
         const validDates = this.checkDates(this.booking.date)
         validDates 
-          ? (item.price && (this.booking.total = this.calcPrice()), this.booking.datePicked = true)
+          ? (item.price && (this.booking.total = this.calcPrice()),
+
+            this.booking.datePicked = true
+            )
           : (
-            this.booking.date = [], this.booking.datePicked = false, 
+            this.booking.date = [], this.booking.datePicked = false, this.booking.total = '',
             Quasar.plugins.Notify.create({message: 'Selected dates invalid!',color:'warning', timeout: 3000 })
             )
         
       },
       formReset(){
-        this.booking.datePicked = false
-        this.booking.date = []; this.booking.total = ""
+        this.booking = {
+          datePicked: false,
+          show:false,
+          proxyDate: '',
+          date: []
+        }
+        // this.booking.datePicked = false
+        // this.booking.date = []; this.booking.total = ""
         this.form.data = {}
       },
       datePickerFormat(){
@@ -152,13 +192,16 @@ new Vue({
         // return date >= '2021/04/03' && date <= '2021/06/15'
       },
       checkDates(date){
-        let check, dates, bk = this.booking.booking_item
+        let check, dates, multi = this.booking?.multi_days
         typeof date[0] == 'string' && 
-          (check = date.every(x=> this.dateOptions(x)),bk == 'table' && date.length > 1 && (check = false)), 
+          (check = date.every(x=> this.dateOptions(x)), 
+          !multi && date.length > 1 && (check = false),
+          /[to]|[from]/.test(date.toString()) && (check = false)
+          ), 
         date.length == 1 && typeof date[0] == 'object' && (
           dates = inBetweenDates({startDate: date[0].from, endDate: date[0].to}),
           check = dates.every(x=> this.dateOptions(x)),
-          bk == 'table' && dates.length > 1 && (check = false)
+          !multi && dates.length > 1 && (check = false)
           )
   
         return check
@@ -170,6 +213,8 @@ new Vue({
           ? qty = date.length
           : qty = (inBetweenDates({startDate: date[0].from, endDate: date[0].to})).length
         price = +item.price * qty
+        item.charge_type && (item.charge_type == 'person' && this.form.data.people) && 
+          (price = +item.price * (+this.form.data.people <= 0 ? 1 : +this.form.data.people) * qty)
         this.form.data.total = price
         return LNbits.utils.formatCurrency(price, item.currency)
       }
@@ -189,7 +234,8 @@ new Vue({
     },
     async created(){
       const items = await this.init({func:'loadItems'})
-      this.card_data = this.tableItemsData(items)
+      this.card_data = this.tableItemsData(items[1])
+      this.cus_id = items[0]
       this.displaySort()
       this.loadStars()
       
