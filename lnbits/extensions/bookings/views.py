@@ -16,3 +16,7 @@ async def show_single_items(id):
 @bookings_ext.route("/all/<id>")
 async def show_all_items(id):   
     return await render_template("bookings/display.html")
+
+@bookings_ext.route("/evt/<id>")
+async def edit_event(id):   
+    return await render_template("bookings/events.html")

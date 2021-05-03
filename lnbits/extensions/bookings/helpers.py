@@ -48,8 +48,31 @@ async def checkPrebook(cus_id:str, data:str) -> bool:
     else:
         return True   
 
+async def clearPrebook(cus_id:str) -> None:
+    try:
+        await db.execute(f"DELETE FROM pre_book WHERE cus_id = '{cus_id}'")
+        return
+    except:
+        return
 
 def conCurrent(p) -> None:
     func, vals = p
     #Thread(target=clearBookings, args=([{"cus_id":cus_id, "error": False}])).start()
     Thread(target=func, args=([vals])).start()
+
+async def clearBookings(p) -> None: 
+    cus = p['cus_id']
+    if p["error"]: # get all rows from booking_evts table which have cus_id and DELETE
+        for i, item in enumerate(Book):
+            if item['cus_id'] == cus:
+                Book.pop(i) #DELETE from table
+        preBook.remove(cus)
+        print(Book)
+
+    else:   # remove any expired bookings from booking_evts table
+        time.sleep(5)
+        for i, item in enumerate(Book):
+            if item['cus_id'] == cus:
+                Book.pop(i) #DELETE from table
+        preBook.remove(cus)
+        print(preBook)

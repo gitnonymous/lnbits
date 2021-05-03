@@ -2,7 +2,7 @@
 from typing import List, Optional, Union
 from .models import Alias, BookingItem, BookingEvent
 from lnbits.helpers import urlsafe_short_hash
-from .helpers import preBookTimes, getWalletFromItem, sats, checkPrebook
+from .helpers import preBookTimes, getWalletFromItem, sats, checkPrebook, clearPrebook
 from lnbits.core.services import create_invoice, check_invoice_status
 from . import db
 import sys, json, time
@@ -89,7 +89,7 @@ async def createItem(
     newItem = await getItem(id, None)
     return {"success":'Booking Item Successfully created', "item":newItem}
 
-async def deleteItem(id: str) -> None:
+async def deleteItem(id: str) -> dict:
     await db.execute("DELETE FROM booking_items WHERE id = ?", (id))
     return {"success":"Item Deleted"}
 
@@ -122,6 +122,7 @@ async def processBooking(bkI) -> dict:
     exp = preBookTimes() #set expiry times for payment and booking
     booked = await addBookingEvents(cus_id, exp, bkI) # add booking to db 
     if not booked:# remove any entries from booking_evts table
+        await deleteEvent('none', cus_id, 'cus_id')
         return {"error": "Booking error, try booking again."}
     wallet = await getWalletFromItem(bkI['item_id']) # retrieve wallet id of booking item
     fee = await sats(bkI)
@@ -171,32 +172,27 @@ async def createBookingEvent(
         (id,cus_id, item_id,alias,bk_type,acca, bk_exp, paid, date,data)
     )
      
-
-def clearBookings(p) -> None: 
-    cus = p['cus_id']
-    if p["error"]: # get all rows from booking_evts table which have cus_id and DELETE
-        for i, item in enumerate(Book):
-            if item['cus_id'] == cus:
-                Book.pop(i) #DELETE from table
-        preBook.remove(cus)
-        print(Book)
-
-    else:   # remove any expired bookings from booking_evts table
-        time.sleep(5)
-        for i, item in enumerate(Book):
-            if item['cus_id'] == cus:
-                Book.pop(i) #DELETE from table
-        preBook.remove(cus)
-        print(preBook)
-
-
 async def getEvents(
     alias: str,
 ) -> List:
-        events=[]
         row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = ? AND paid = ? ", (alias, False))
         if not row:
             return {[]}
         else:
             return json.dumps( [dict(ix) for ix in row] )
-        
+
+async def getBookingEvent(
+    cus_id: str,
+) -> List:
+        row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE cus_id = ?", (cus_id))
+        if not row:
+            return {[]}
+        else:
+            return json.dumps( [dict(ix) for ix in row] )
+
+async def deleteEvent(id:str, cus_id:str, select:str)-> dict:
+    db_id = id if select == id else cus_id
+    print(db_id), print(select)
+    await db.execute(f"DELETE FROM booking_evts WHERE {select} = '{db_id}'")
+    await clearPrebook(cus_id)
+    return {"success":"Booking Deleted"}

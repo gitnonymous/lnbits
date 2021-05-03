@@ -1,0 +1,66 @@
+{% extends "public.html" %}{% from "macros.jinja" import window_vars with context
+%}
+{% block page %}
+<template>
+    {%raw%}
+    <span class="row justify-center q-mb-sm bookmark"><q-btn outine icon="bookmark" label="bookmark page" @click="bookmark('top')"></q-btn></span>
+    <div class="q-pa-md q-gutter-md row justify-center my-card-con">
+        <q-card class="my-card" v-for="event in event.data">
+            <q-img
+             :src="event.data?.img || 'https://picsum.photos/400'"
+              basic
+            >
+              <div class="absolute-bottom text-h6 text-center" style="backdrop-filter: blur(2px);">
+                {{event.data?.title || 'Booking Event'}} @{{event.data?.business_name || 'a great place'}}
+              </div>
+            </q-img>
+      
+            <q-card-section class="my-card-section">
+                <div class="q-pa-md text-center text-h5 text-bold" style="font-family: Montserrat;">{{dateFormat(event.date)}}</div>
+                <div class="q-pa-xs text-center">{{event.data.email}}</div>
+              <div class="row justify-center q-mt-lg">
+                  <q-btn
+                  outline
+                  label="delete booking"
+                  @click="confirm({ok:'deleteEvent', id: event.id, title:'Delete Event', msg:'Do you want to delete your booking?'})"
+                >
+              </div>
+            </q-card-section>
+          </q-card>
+    </div>
+    {%endraw%}
+    <q-dialog v-model="book" :position="position">
+        <q-card style="width: 350px">
+          <q-card-section class="row items-center no-wrap">
+              <div class="text-weight-bold text-center">Press Ctrl + D to bookmark this page.</div>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+</template>
+{% endblock %} 
+{% block scripts %}
+<style>
+     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap');
+    .my-card{
+        max-width:400px;
+        min-width: 400px;
+    }
+    .my-card .q-img{
+        max-height: 200px;
+    }
+    @media(max-width:550px){
+        .my-card{
+            min-width: 350px;
+            width: 100vw !important;
+            /* width:100vw; */
+        }
+        .my-card-con{
+            padding:1px;
+        }
+        .bookmark{
+            margin-top:-12px;
+        }
+    }
+</style>
+<script src="../static/js/event_edit.js"></script>
+{% endblock %}

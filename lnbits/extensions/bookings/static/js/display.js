@@ -55,6 +55,8 @@ new Vue({
           {
             item_id: this.booking.item.id,
             title:this.booking.item.title,
+            business_name:this.booking.item.business_name,
+            img:this.booking.item.img_url ? this.booking.item.img_url.split(',')[0] : null,
             alias: location.pathname.split('/')[3],
             cus_id: this.cus_id,
             bk_type: this.booking.item.booking_item,
@@ -64,7 +66,7 @@ new Vue({
         console.log(payload);
         /[to]|[from]/.test(payload.date.toString()) && (payload.date = inBetweenDates({startDate: payload.date[0].from, endDate: payload.date[0].to}))
         this.isSubmitting =true
-        let res = await LNbits.api.request('POST',`/bookings/api/v1/public/items`,null,payload)
+        let res = await LNbits.api.request('POST',`/bookings/api/v1/public/events`,null,payload)
         res.data.success && (
           this.booking.payment_request = res.data.success.payment_request, 
           this.booking.sats = res.data.success.sats,
@@ -239,7 +241,28 @@ new Vue({
       },
       showAlert(v){
         alert(v)
-      }
+      },
+      async deleteBkEvent(id){
+        const {data} = await LNbits.api.request('DELETE',`/bookings/api/v1/public/events/${id}?cus_id=${id}&select=cus_id`,null)
+        data.success && Quasar.plugins.Notify.create({message: 'Booking Cancelled', color:'positive', timeout: 3000 })
+        this.showQr = false
+      },
+      confirm (p) {
+        this.$q.dialog({
+          title: p.title || 'Confirm',
+          message: p.msg || 'Would you like to continue?',
+          cancel: true,
+          persistent: true
+        }).onOk(() => {
+          p?.ok == 'deleteBkEvent' && this.deleteBkEvent(p.id)
+        }).onOk(() => {
+          // console.log('>>>> second OK catcher')
+        }).onCancel(() => {
+          // console.log('>>>> Cancel')
+        }).onDismiss(() => {
+          // console.log('I am triggered on both OK and Cancel')
+        })
+    },
       
     },
     watch:{

@@ -13,7 +13,9 @@ from .crud import (
    updateDisplay,
    updateItem,
    processBooking,
-   getEvents
+   getEvents,
+   deleteEvent,
+   getBookingEvent
 )
 
 # add your endpoints here
@@ -78,21 +80,32 @@ async def events_get():
     alias = request.args.get('alias')
     usr = request.args.get('usr')
     events = await getEvents(alias)
-    # if alias is not None:
-    #     items = await getItems(alias,None)
     return events, HTTPStatus.OK
 
 
 # public side api calls
+# items
 @bookings_ext.route("/api/v1/public/items", methods=["GET"])
 async def api_public_get_items():
     alias = request.args.get('alias')
     items = await getItems(alias, True)
     return items, HTTPStatus.OK
+# events
+@bookings_ext.route("/api/v1/public/events/<id>", methods=["GET"])
+async def api_public_get_event(id):
+    event = await getBookingEvent(id)
+    return event, HTTPStatus.OK
 
-@bookings_ext.route("/api/v1/public/items", methods=["POST"])
-async def api_public_post_item():
+@bookings_ext.route("/api/v1/public/events", methods=["POST"])
+async def api_public_post_event():
     data = await request.data
     data = json.loads(data)
     payment = await processBooking(data)
     return payment, HTTPStatus.OK
+
+@bookings_ext.route("/api/v1/public/events/<id>", methods=["DELETE"])
+async def api_public_delete_event(id):
+    cus_id = request.args.get('cus_id')
+    id_select = request.args.get('select')
+    delete = await deleteEvent(id, cus_id, id_select)
+    return delete, HTTPStatus.OK

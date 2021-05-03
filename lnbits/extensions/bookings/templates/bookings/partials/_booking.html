@@ -106,7 +106,7 @@
                 <span class="text-center q-pa-sm q-mb-sm">Powered by LNbits</span>
                 <span class="text-h4 text-center q-pa-sm">{{formatSats}} sat</span>
                   <div class="absolute q-pa-md row justify-center" style="bottom:0; width:100%;" >
-                    <q-btn round elevated icon="cancel" @click="showQr = false"></q-btn>
+                    <q-btn round elevated icon="cancel" @click="confirm({ok:'deleteBkEvent',id:cus_id, title:'Cancel Booking', msg:'This will delete the current booking!'})"></q-btn>
                   </div>
              </div>
            </div>
