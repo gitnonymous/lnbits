@@ -12,12 +12,14 @@ from .crud import (
    getAlias,
    updateDisplay,
    updateItem,
-   processBooking
+   processBooking,
+   getEvents
 )
 
 # add your endpoints here
 
 # account authorized api calls
+# Booking Items API
 @bookings_ext.route("/api/v1/items", methods=["GET"])
 @api_check_wallet_key('invoice')
 async def items_get():
@@ -28,7 +30,7 @@ async def items_get():
         return items, HTTPStatus.OK
     elif usr is not None:
         aliasCheck = await getAlias(usr)
-        return aliasCheck[1], HTTPStatus.OK
+        return aliasCheck, HTTPStatus.OK
 
 @bookings_ext.route("/api/v1/items", methods=["POST"])
 @api_check_wallet_key('invoice')
@@ -63,12 +65,22 @@ async def items_put():
         )
         return update, HTTPStatus.OK
 
-
 @bookings_ext.route("/api/v1/items/<id>", methods=["DELETE"])
 @api_check_wallet_key('invoice')
 async def items_delete(id):
     delete = await deleteItem(id)
     return delete, HTTPStatus.OK
+
+# Booking Events API
+@bookings_ext.route("/api/v1/events", methods=["GET"])
+@api_check_wallet_key('invoice')
+async def events_get():
+    alias = request.args.get('alias')
+    usr = request.args.get('usr')
+    events = await getEvents(alias)
+    # if alias is not None:
+    #     items = await getItems(alias,None)
+    return events, HTTPStatus.OK
 
 
 # public side api calls

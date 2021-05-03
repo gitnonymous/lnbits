@@ -4,6 +4,7 @@
     </q-card-section>
   </q-card>
   {% include "bookings/partials/_booking_item_table.html" %}
+  {% include "bookings/partials/_booking_evts_table.html" %}
 
   <q-dialog v-model="form.show" @hide="formReset(null)">
     <q-card class="q-pa-lg q-pt-xl lnbits__dialog-card">

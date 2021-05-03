@@ -35,6 +35,21 @@ new Vue({
                 show:false,
                
             }
+        },
+        events:{
+            table:{
+                columns:[
+                { name: 'b1', align: 'left', label: '', field: ''},
+                { name: 'title', align: 'left', label: 'Title', field: 'title', sortable: true},
+                { name: 'type', align: 'left', label: 'Type', field: 'type', sortable: true },
+                { name: 'qty', align: 'left', label: 'Qty', field: 'qty', sortable: true},
+                { name: 'date', align: 'left', label: 'Date', field: 'date', sortable: true },
+                { name: 'paid', align: 'left', label: 'Paid', field: 'paid', sortable: true },
+                { name: 'email', align: 'left', label: 'Email', field: 'email', sortable: true },
+                ],
+                data:[]
+            },
+            data:[]
         }
       }
     },
@@ -149,7 +164,23 @@ new Vue({
             this.table.edit[data.booking_item] = true
         },
         tableItemsData(data){
+            typeof data !== 'object' && (data = [])
             return data.map(x=>(Object.assign({...JSON.parse(x.data)},{id:x.id},{wallet:x.wallet},{display:x.display})))
+        },
+        eventsTableData(data){
+            if(!data.length)return
+            const evtsData = data.map(x=> ({
+                    cus_id: x.cus_id,
+                    item_id:x.data.item_id,
+                    email:x.data.email,
+                    type: x.bk_type,
+                    title: x.data?.title || 'N/A',
+                    qty: x.acca,
+                    date: x.date,
+                    paid: x.paid ? 'Paid' : 'Pending'
+                
+            }))
+            this.events.table.data = evtsData
         },
         confirm (p) {
             this.$q.dialog({
@@ -200,10 +231,21 @@ new Vue({
             )
             return data
             }
+            action.loadEvents = async () =>{
+                let {data} = await LNbits.api
+                .request(
+                'GET',
+                `/bookings/api/v1/events?alias=${this.alias}`,
+                this.g.user.wallets[0].inkey
+                )
+                data = data.map(x=>(Object.assign({...x},{data:JSON.parse(x.data)})))
+                this.events.data = data; this.eventsTableData(data)
+                return data
+            }
             return action[p.func](p)
         },
         updateProxy () {
-            this.form.data.date = [moment().format('yy/MM/D')]
+            this.form.data.date = [moment().format('yy/MM/DD')]
             this.form.data.proxyDate = this.form.data.date
         },
         save () {
@@ -220,9 +262,13 @@ new Vue({
         },
         dateOptions(date) {
             let days = [], 
-            beforeToday = date >= moment(new Date()).format('yy/MM/D') 
+            beforeToday = date >= moment(new Date()).format('yy/MM/DD') 
             beforeToday && days.push(date)
             return +days.some(day=> day == date) === 1
+        },
+        evtAcca(id, date){
+            const evts = this.events.data.filter(x=> x.data.item_id == id && x.date == date).reduce((ac,x)=> {ac += x.acca; return ac},0)
+            return evts
         }
     },
     computed:{
@@ -237,7 +283,7 @@ new Vue({
         window.ST8 = {}
         ST8.formData = JSON.stringify(this.form.data)
         this.getCurrencyRates()
-        let items
+        let items, events
         // any ajax calls
         const alias = await this.init({func: 'loadAlias'})
         this.alias = alias
@@ -245,5 +291,6 @@ new Vue({
         alias && (items = await this.init({func: 'loadItems'}),
         this.table.data = this.tableItemsData(items), this.tableSort()
         )
+        alias && (events = await this.init({func: 'loadEvents'}), console.log(events))
     }
   })

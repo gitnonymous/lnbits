@@ -1,7 +1,7 @@
 <template>
     {%raw%}
     <q-dialog v-model="booking.show" @hide="formReset()" persistent>
-        <q-card class="lnbits__dialog-card">
+    <q-card class="lnbits__dialog-card relative">
             <q-toolbar>
                 <q-avatar>
                     <q-btn flat round dense icon="event_available" />
@@ -80,7 +80,7 @@
                         form.data.name == null ||
                         form.data.email == null ||
                         !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(form.data.email) ||
-                        booking.booking_item == 'table' && form.data.acca == null|| form.data.acca == ''
+                        booking.booking_item == 'table' && form.data.acca == null
                         "
                     type="submit"
                     >Book {{booking.booking_item}}</q-btn>
@@ -88,6 +88,28 @@
                 </div>
               </q-form>
           </q-card-section>
+           <div class="qr-code-card inset-shadow-down" v-show="showQr">
+             <div class="relative column justify-center" style="height: 100%;">
+                <q-responsive
+                  @click="copyToClip('lnurl')"
+                  :ratio="1"
+                  style="width:150px; height:150px; left:0; right:0; margin:0 auto;"
+                  >
+                  <qrcode
+                    @click="alert(booking.payment_request)"
+                    style="border-radius: 5px;"
+                    v-if="showQr"
+                    :value="booking.payment_request"
+                    class="rounded cursor-pointer"
+                  ></qrcode>
+                </q-responsive>
+                <span class="text-center q-pa-sm q-mb-sm">Powered by LNbits</span>
+                <span class="text-h4 text-center q-pa-sm">{{formatSats}} sat</span>
+                  <div class="absolute q-pa-md row justify-center" style="bottom:0; width:100%;" >
+                    <q-btn round elevated icon="cancel" @click="showQr = false"></q-btn>
+                  </div>
+             </div>
+           </div>
         </q-card>
       </q-dialog>
       {%endraw%}

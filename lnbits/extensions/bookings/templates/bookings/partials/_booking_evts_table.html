@@ -1,0 +1,62 @@
+<template>
+    {%raw%}
+<q-card>
+    <q-table
+    class="q-pa-sm"
+    dense
+    flat
+    title="Booking Events"
+    :data="events.table.data"
+    :columns="events.table.columns"
+    row-key="name"  
+    />
+    <template v-slot:body="props">
+        <q-tr :props="props">
+          <q-td key="b1" :props="props" auto-width>
+            <q-btn
+                unelevated
+                dense
+                size="xs"
+                icon="edit"
+                :color="($q.dark.isActive) ? 'grey-7' : 'grey-5'"
+                type="a"
+                :href="'/bookings/evt/'+ props.row.cus_id"
+                target="_blank"
+              ></q-btn>
+              <q-btn
+              unelevated
+              dense
+              size="xs"
+              icon="search"
+              :color="($q.dark.isActive) ? 'grey-7' : 'grey-5'"
+              type="a"
+              :href="form.booking_url"
+              target="_blank"
+            ></q-btn>
+          </q-td>
+          <q-td key="title" :props="props" auto-width>
+            {{props.row.title.length > 15 ? props.row.title.substring(0,9)+'..' : props.row.title}}
+          </q-td>
+          <q-td key="type" :props="props" auto-width>
+            {{props.row.type}}
+          </q-td>
+          <q-td key="qty" :props="props" auto-width>
+            {{props.row.qty}}
+          </q-td>
+          <q-td key="date" :props="props" auto-width>
+            {{props.row.date}}
+            <q-tooltip font-size="1rem" anchor="center left">{{ evtAcca(props.row.item_id, props.row.date) }}</q-tooltip>
+          </q-td>
+          <q-td key="paid" :props="props" auto-width>
+            {{props.row.paid}}
+          </q-td>
+          <q-td key="email" :props="props" auto-width>
+            {{props.row.email}}
+          </q-td>
+        </q-tr>
+      </template>
+    </q-table>
+
+</q-card>
+    {%endraw%}
+</template> 

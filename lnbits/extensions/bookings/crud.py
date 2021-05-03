@@ -2,7 +2,8 @@
 from typing import List, Optional, Union
 from .models import Alias, BookingItem, BookingEvent
 from lnbits.helpers import urlsafe_short_hash
-from .helpers import preBookTimes
+from .helpers import preBookTimes, getWalletFromItem, sats, checkPrebook
+from lnbits.core.services import create_invoice, check_invoice_status
 from . import db
 import sys, json, time
 from datetime import date, datetime 
@@ -21,6 +22,7 @@ async def createAlias(
         """,
         (usr_id, alias)
     )
+    return alias
 
 async def getAlias(
     usr: str,
@@ -30,7 +32,7 @@ async def getAlias(
         if not row:
             return await createAlias(usr)
         else:
-            return row
+            return row[1]
     except:
         return {"error":"Database Error"}
 
@@ -65,7 +67,7 @@ async def getItem(
 ) -> List:
     row = await db.fetchone("SELECT * FROM booking_items WHERE id = ?", (id))
     if public:
-        return [dict(row)]
+        return [dict(row)] #sanitize
     else:
         return [dict(row)]
 
@@ -84,7 +86,7 @@ async def createItem(
     """,
         (usr_id, wallet, id, alias, display, data)
     )
-    newItem = await getItem(id)
+    newItem = await getItem(id, None)
     return {"success":'Booking Item Successfully created', "item":newItem}
 
 async def deleteItem(id: str) -> None:
@@ -112,41 +114,42 @@ async def updateDisplay(id: str, display: bool) -> None:
     await db.execute(f"UPDATE booking_items SET display = {display} WHERE id = ?",(id))
     return {"success":"item display updated"}
 
-preBook = []
-Book = []
-async def processBooking(bkI) -> None:
-    if preBook.count(bkI['cus_id']) > 0:  # check prebook table for booking instance
+async def processBooking(bkI) -> dict:
+    cus_id = bkI['cus_id']
+    preBook = await checkPrebook(cus_id, json.dumps(bkI)) # add preBook to db
+    if preBook:  # check prebook table for booking instance
         return {"error": "Booking received"}
     exp = preBookTimes() #set expiry times for payment and booking
-    cus_id = bkI['cus_id']
-    preBook.append(cus_id) # add preBook to db
-    booked = await addBookingEvents(cus_id, exp, bkI)
-    if not booked:
-        preBook.remove(cus_id)
-        # remove any entries from booking_evts table
+    booked = await addBookingEvents(cus_id, exp, bkI) # add booking to db 
+    if not booked:# remove any entries from booking_evts table
         return {"error": "Booking error, try booking again."}
-    # create lnurlP with split payment
-    Thread(target=clearBookings, args=([{"cus_id":cus_id, "error": False}])).start() # 
-    return {"success":"pay lnurl"}
+    wallet = await getWalletFromItem(bkI['item_id']) # retrieve wallet id of booking item
+    fee = await sats(bkI)
+    [payment_hash, payment_request]= await create_invoice( # create invoice
+        wallet_id=wallet, amount=fee, memo=cus_id)
+    return {"success":{"payment_hash":payment_hash, "payment_request": payment_request, "sats":fee}}
 
 async def addBookingEvents(
     cus_id: str,
     exp: dict,
     bkI: dict
 ) -> bool:
-    for date in bkI['date']: # add booking events to booking_evts table. multi if multi dates
-        await createBookingEvent(
-            cus_id,
-            bkI['item_id'],
-            bkI['alias'],
-            bkI['bk_type'],
-            int(bkI['acca']),
-            int(exp['bk_exp']),
-            False,
-            date,
-            json.dumps(bkI)
-        )
-    return True
+    try:
+        for date in bkI['date']: # add booking events to booking_evts table. multi if multi dates
+            await createBookingEvent(
+                cus_id,
+                bkI['item_id'],
+                bkI['alias'],
+                bkI['bk_type'],
+                int(bkI['acca']),
+                int(exp['bk_exp']),
+                False,
+                date,
+                json.dumps(bkI)
+            )
+        return True
+    except:
+        return False
 
 async def createBookingEvent(
     cus_id: str,
@@ -158,35 +161,42 @@ async def createBookingEvent(
     paid: bool,
     date: str,
     data: str,
-) -> BookingItem:
+) -> BookingEvent:
     id = urlsafe_short_hash()
-    Book.append(
-        {
-            "id":id, 
-            "cus_id": cus_id, 
-            "item_id":item_id, 
-            "alias":alias, 
-            "bk_type": bk_type, 
-            "acca": acca, 
-            "bk_exp": bk_exp, 
-            "paid": paid, 
-            "date":date, 
-            "data": data
-        })
+    await db.execute(
+        """
+        INSERT INTO booking_evts (id,cus_id, item_id,alias,bk_type,acca, bk_exp,paid, date,data)
+        VALUES (?,?,?,?,?,?,?,?,?,?)
+    """,
+        (id,cus_id, item_id,alias,bk_type,acca, bk_exp, paid, date,data)
+    )
+     
 
-def clearBookings(p): 
+def clearBookings(p) -> None: 
     cus = p['cus_id']
     if p["error"]: # get all rows from booking_evts table which have cus_id and DELETE
-        for index, item in enumerate(Book):
+        for i, item in enumerate(Book):
             if item['cus_id'] == cus:
-                Book.pop(index)
-                preBook.remove(cus)
-                print(Book)
+                Book.pop(i) #DELETE from table
+        preBook.remove(cus)
+        print(Book)
 
     else:   # remove any expired bookings from booking_evts table
         time.sleep(5)
-        for index, item in enumerate(Book):
+        for i, item in enumerate(Book):
             if item['cus_id'] == cus:
-                Book.pop(index)
-                preBook.remove(cus)
-                print(Book)
+                Book.pop(i) #DELETE from table
+        preBook.remove(cus)
+        print(preBook)
+
+
+async def getEvents(
+    alias: str,
+) -> List:
+        events=[]
+        row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = ? AND paid = ? ", (alias, False))
+        if not row:
+            return {[]}
+        else:
+            return json.dumps( [dict(ix) for ix in row] )
+        

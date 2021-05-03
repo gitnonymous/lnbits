@@ -1,4 +1,4 @@
-
+Vue.component(VueQrcode.name, VueQrcode)
 new Vue({
     el: '#vue',
     mixins: [windowMixin],
@@ -8,8 +8,10 @@ new Vue({
         card_data:[],
         cus_id: '',
         sort: true,
-        img_default: 'https//picsum.photos/400',
+        img_default: 'https://picsum.photos/400',
+        location_default:'London',
         isSubmitting: false,
+        showQr: false,
         form:{
           data:{
 
@@ -34,7 +36,9 @@ new Vue({
           datePicked: false,
           show:false,
           proxyDate: '',
-          date: [] //[moment().format('yy/MM/D')]
+          date: [], //[moment().format('yy/MM/DD')]
+          payment_request: '',
+          sats:0
         },
         info:{
           show: false,
@@ -45,20 +49,31 @@ new Vue({
     methods:{
       async submitForm(e){
         e.preventDefault()
+        !this.form.data.acca ? this.form.data.acca = 1 : this.form.data.acca = + this.form.data.acca
         const payload = Object.assign(
           {...this.form.data},
           {
             item_id: this.booking.item.id,
+            title:this.booking.item.title,
             alias: location.pathname.split('/')[3],
             cus_id: this.cus_id,
-            bk_type: this.booking.item.booking_item
+            bk_type: this.booking.item.booking_item,
+            currency: this.booking.item.currency
           }
         );
+        console.log(payload);
         /[to]|[from]/.test(payload.date.toString()) && (payload.date = inBetweenDates({startDate: payload.date[0].from, endDate: payload.date[0].to}))
         this.isSubmitting =true
         let res = await LNbits.api.request('POST',`/bookings/api/v1/public/items`,null,payload)
-        console.log(res.data)
-        setTimeout(_=> this.isSubmitting = false, 2000)
+        res.data.success && (
+          this.booking.payment_request = res.data.success.payment_request, 
+          this.booking.sats = res.data.success.sats,
+          this.isSubmitting = false, 
+          this.showQr = true)
+        res.data.error && (
+          Quasar.plugins.Notify.create({message: 'Processing Booking',color:'warning', timeout: 3000 })
+          , this.isSubmitting = false)
+
       },
       init(p){
         const alias = location.pathname.split('/')[3]
@@ -88,7 +103,7 @@ new Vue({
         : this.card_data.sort((a,b)=>  (b.booking_item.localeCompare(a.booking_item)))
       },
       images(images){
-        return images.split(',')
+        return images?.split(',') || [this.img_default]
       },
       showGallery(id){
         const card_item =this.card_data.find(x=>x.id == id)
@@ -98,11 +113,12 @@ new Vue({
       },
       async showLocation(id){
         let card = this.card_data.find(x=> x.id == id), bb = 0.008
+        if(!card.location)return
         this.map.business_name = card.business_name
         this.map.location = card.location
         this.map.show = true
         this.$q.loading.show({message: 'Loading location map...'})
-        const lonlat = await(await fetch(`https://geocode.xyz/${card.location.replace(/[,\s+] /g,'+')}&auth=913139462328678588578x56349?json=1`)).json()
+        const lonlat = await(await fetch(`https://geocode.xyz/${card?.location.replace(/[,\s+] /g,'+')}&auth=913139462328678588578x56349?json=1`)).json()
         const omurl = `https://www.openstreetmap.org/export/embed.html?bbox=${this.gps(+lonlat.longt-bb)},${this.gps(+lonlat.latt-bb)},${this.gps(+lonlat.longt+bb)},${this.gps(+lonlat.latt+bb)}&layer=mapnik&marker=${lonlat.latt},${lonlat.longt}`
         this.map.url = omurl
         this.map.gps.lon = lonlat.longt
@@ -117,7 +133,7 @@ new Vue({
         this.booking.booking_item = item.booking_item
         this.booking.multi_days = item?.multi_days?.value
         this.booking.id = id; item.charge_type && (this.booking.charge_type = item.charge_type)
-        this.booking.img = item.img_url.split(',')[0]
+        this.booking.img = item.img_url ? item.img_url.split(',')[0] : this.img_default
         this.booking.show = true
       },
       showInfo(id){
@@ -133,6 +149,7 @@ new Vue({
       copyToClip(p){
         let text
         p == 'gps' && (text = `${this.map.gps.lat},${this.map.gps.lon}`, this.copyText(text, 'GPS copied to clipboard!'))
+        p == 'lnurl' && (text = this.booking.payment_request, this.copyText(text, 'LNURL copied to clipboard!'))
       },
       loadStars(){
         let stars = {}
@@ -150,7 +167,6 @@ new Vue({
         let item = this.card_data.find(x=> x.id == this.booking.id)
         this.booking.date = this.booking.proxyDate
         this.form.data.date = this.booking.date
-        this.form.data.acca = 1
         const validDates = this.checkDates(this.booking.date)
         validDates 
           ? (item.price && (this.booking.total = this.calcPrice()),
@@ -168,11 +184,14 @@ new Vue({
           datePicked: false,
           show:false,
           proxyDate: '',
-          date: []
+          date: [],
+          payment_request: '',
+          sats: 0
         }
         // this.booking.datePicked = false
         // this.booking.date = []; this.booking.total = ""
         this.form.data = {}
+        this.isSubmitting = false
       },
       datePickerFormat(){
         let date_val, cur_date = this.booking.date
@@ -184,7 +203,7 @@ new Vue({
       },
       dateOptions(date) {
         let days = [], item = this.card_data.find(x=> x.id == this.booking.id), tdays = item?.table_days || [],
-        sdays = item?.date ? item.date : [], beforeToday = date >= moment(new Date()).format('yy/MM/D') 
+        sdays = item?.date ? item.date : [], beforeToday = date >= moment(new Date()).format('yy/MM/DD') 
         tdays.some(x=> +x == moment(new Date(date)).days()) && ( beforeToday && days.push(date))
         sdays.some(day=> day == date) && days.push(date)
         !tdays.length && !sdays.length && ( beforeToday && days.push(date))
@@ -217,12 +236,24 @@ new Vue({
           (price = +item.price * (+this.form.data.people <= 0 ? 1 : +this.form.data.people) * qty)
         this.form.data.total = price
         return LNbits.utils.formatCurrency(price, item.currency)
+      },
+      showAlert(v){
+        alert(v)
       }
       
+    },
+    watch:{
+      showQr(v){
+        let qrslide = document.querySelector('.qr-code-card')
+        v ?  setTimeout(_=> qrslide.style.top = 0,1) : qrslide.style.top = '800px'
+      }
     },
     computed:{
       dateDisplay(){
         return this.datePickerFormat()
+      },
+      formatSats(){
+       return LNbits.utils.formatSat(this.booking.sats)
       }
     },
     mounted(){  
