@@ -40,9 +40,11 @@
                 unelevated
                 dense
                 size="xs"
-                icon="visibility"
+                icon="settings_ethernet"
                 :color="($q.dark.isActive) ? 'grey-7' : 'grey-5'"
-                @click="openQrCodeDialog(props.row.id)"
+                type="a"
+                :href="'/bookings/single/'+props.row.id"
+                target="_blank"
               ></q-btn>
             </q-td>
             <q-td auto-width class="text-capitalize">{{ props.row.booking_item }}</q-td>

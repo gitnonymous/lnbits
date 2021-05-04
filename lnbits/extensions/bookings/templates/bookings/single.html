@@ -1,6 +1,114 @@
 {% extends "public.html" %} {% from "macros.jinja" import window_vars with context
 %} {% block page %}
-<h1>single</h1>
-{% endblock %} {% block scripts %} {{ window_vars(user) }}
-<script src="static/js/single.js"></script>
+<template>
+    <div class="row items-center justify-center q-gutter-md">
+        {% include "bookings/partials/_table_card.html" %} 
+        {% include "bookings/partials/_room_card.html" %} 
+      </div>
+</template>
+{% include "bookings/partials/_gallery.html" %} 
+{% include "bookings/partials/_location.html" %} 
+{% include "bookings/partials/_booking.html" %} 
+{% include "bookings/partials/_info.html" %} 
+{% endblock %} {% block scripts %}
+<script src="../static/js/display.js" defer></script>
+<script src="../static/js/app.js" defer></script>
+<script>
+    document.addEventListener('DOMContentLoaded', ()=>{
+        document.querySelector('header').remove()
+        document.querySelector('footer').remove()
+        document.querySelector('.q-page-container').style.padding = '1px'
+        document.querySelector('.q-page').style.padding= '1px'
+        document.querySelector('.q-page').style.margin= '1px'
+    })
+</script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap');
+    body{
+        background-color: inherit !important;
+    }
+    #vue{
+         display:flex;
+         align-items: center !important;
+         justify-content: center !important;
+     }
+    iframe{
+        height:300px;
+    }
+    .my-card{
+        background: #fff !important;
+        color: #212121 !important;
+        width: 100%;
+        max-width: 280px !important;
+    }
+    .location-btn{
+        position:absolute;
+        top: 0; 
+        right: 12px; 
+        transform: translateY(-50%);
+    }
+    .my-carousel .q-carousel{
+        height:350px;
+    }
+    .my-card img{
+        min-height: 184px !important;
+        max-height: 184px !important;
+    }
+    .card-price{
+        color:#212121;
+        background: white;
+        border: 1px solid #ccc;
+        position: absolute; 
+        bottom:-1.25rem; 
+        left:2px;
+    }
+    .card-btn{
+        /* color: #9c27b0!important; */
+        /* text-shadow:1px 1px 2px #000000;  */
+        /* background:rgba(255,255,255,1);
+        */
+    }
+    .my-carousel{
+        height: auto;
+        width: 100vw;
+    }
+    .my-carousel .caro-img{
+        height: 100% !important;
+        min-width: 100% !important;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+    .dark_color_correct{
+    background-color: #414453!important;
+    }
+    .qr-code-card{
+        position:absolute;
+        top:800px;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        backdrop-filter: blur(30px);
+        transition: 0.5s ease-in-out;
+    }
+    
+    @media(max-width: 654px){
+       .my-card{
+           min-width:90vw !important;
+       }
+       .my-card img{
+        object-fit:cover;
+        max-height: 300px !important;
+        
+       }
+       .my-info{
+           padding:1px;
+       }
+
+    }
+    @media(min-width: 655px){
+        .my-info{
+           padding:0 30%;
+       }
+    }
+</style>
 {% endblock %}

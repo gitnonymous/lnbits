@@ -33,6 +33,7 @@ new Vue({
           }
         },
         booking:{
+          btn: true,
           datePicked: false,
           show:false,
           proxyDate: '',
@@ -57,7 +58,7 @@ new Vue({
             title:this.booking.item.title,
             business_name:this.booking.item.business_name,
             img:this.booking.item.img_url ? this.booking.item.img_url.split(',')[0] : null,
-            alias: location.pathname.split('/')[3],
+            alias: this.booking.item.alias,
             cus_id: this.cus_id,
             bk_type: this.booking.item.booking_item,
             currency: this.booking.item.currency
@@ -81,23 +82,33 @@ new Vue({
         const alias = location.pathname.split('/')[3]
         const action ={}
         action.loadItems = async () =>{
+          const sfil = location.pathname.split('/')[2] === 'single'
+          if(sfil){
+            const {data} = await LNbits.api
+            .request(
+            'GET',
+            `/bookings/api/v1/public/item/${alias}`
+            )
+            return data
+          }else{
             const {data} = await LNbits.api
             .request(
             'GET',
             `/bookings/api/v1/public/items?alias=${alias}`
-        )
-        return data
+            )
+            return data
+          }
         }
         return action[p.func](p)
       },  
       tableItemsData(data){
-      return data.map(x=>(
-        Object.assign({...JSON.parse(x.data)},
-        {id:x.id},
-        {wallet:x.wallet},
-        {display:x.display},
-        {display_price: LNbits.utils.formatCurrency(JSON.parse(x.data).price, JSON.parse(x.data).currency || 'USD')}
-        )))
+        return data.map(x=>(
+          Object.assign({...JSON.parse(x.data)},
+          {id:x.id},
+          {alias:x.alias},
+          {display:x.display},
+          {display_price: LNbits.utils.formatCurrency(JSON.parse(x.data).price, JSON.parse(x.data).currency || 'USD')}
+          )))
       },
       displaySort(){
         this.sort 
@@ -136,6 +147,7 @@ new Vue({
         this.booking.multi_days = item?.multi_days?.value
         this.booking.id = id; item.charge_type && (this.booking.charge_type = item.charge_type)
         this.booking.img = item.img_url ? item.img_url.split(',')[0] : this.img_default
+        this.getItemDates(id)
         this.booking.show = true
       },
       showInfo(id){
@@ -144,6 +156,10 @@ new Vue({
         item?.info_iframe ? this.info.info_iframe =item.info_iframe.split(',') : this.info.info_iframe = []
         this.info.show = true
         setTimeout(_=> document.querySelector('.q-dialog__inner').classList.add('my-info'),10 )
+      },
+      async getItemDates(id){
+        let {data} = await LNbits.api.request('GET',`/bookings/api/v1/public/events/dates/${id}`,null)
+        data.success && (this.booking.itemDates = data.success, this.booking.btn = false)
       },
       gps(value){
         return value.toFixed(5)
@@ -183,6 +199,7 @@ new Vue({
       },
       formReset(){
         this.booking = {
+          btn:true,
           datePicked: false,
           show:false,
           proxyDate: '',
@@ -209,7 +226,9 @@ new Vue({
         tdays.some(x=> +x == moment(new Date(date)).days()) && ( beforeToday && days.push(date))
         sdays.some(day=> day == date) && days.push(date)
         !tdays.length && !sdays.length && ( beforeToday && days.push(date))
-        return +days.some(day=> day == date) === 1
+        let returnDay = +days.some(day=> day == date) === 1
+        this.booking?.itemDates[date] && this.booking?.itemDates[date] >= +item.acca && (returnDay = false)
+        return returnDay
         // return date >= '2021/04/03' && date <= '2021/06/15'
       },
       checkDates(date){
@@ -280,7 +299,7 @@ new Vue({
       }
     },
     mounted(){  
-      document.querySelector('.q-toolbar a').innerHTML = "<strong>LNbits Booking System</strong>"
+      document.querySelector('.q-toolbar a').innerHTML = "<strong>LN</strong>bits Booking System"
       // document.querySelector('.q-toolbar a').style.color = "#212121"
       // document.querySelector('.q-toolbar a').style.fontFamily = "Monserat"
       // document.querySelector('.q-header').style.background = "inherit"

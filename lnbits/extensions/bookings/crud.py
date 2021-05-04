@@ -66,10 +66,13 @@ async def getItem(
     public: Optional[bool]
 ) -> List:
     row = await db.fetchone("SELECT * FROM booking_items WHERE id = ?", (id))
+    row = dict(row)
     if public:
-        return [dict(row)] #sanitize
+        del row['usr_id']
+        del row['wallet']
+        return json.dumps([urlsafe_short_hash(),[row]])
     else:
-        return [dict(row)]
+        return json.dumps([urlsafe_short_hash(),[row]])
 
 async def createItem(
     usr_id: str,
@@ -186,13 +189,14 @@ async def getBookingEvent(
 ) -> List:
         row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE cus_id = ?", (cus_id))
         if not row:
-            return {[]}
+            return []
         else:
             return json.dumps( [dict(ix) for ix in row] )
 
 async def deleteEvent(id:str, cus_id:str, select:str)-> dict:
-    db_id = id if select == id else cus_id
+    db_id = id if select == 'id' else cus_id
     print(db_id), print(select)
     await db.execute(f"DELETE FROM booking_evts WHERE {select} = '{db_id}'")
-    await clearPrebook(cus_id)
+    if select == 'cus_id':
+        await clearPrebook(cus_id)
     return {"success":"Booking Deleted"}

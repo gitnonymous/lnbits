@@ -76,3 +76,15 @@ async def clearBookings(p) -> None:
                 Book.pop(i) #DELETE from table
         preBook.remove(cus)
         print(preBook)
+
+async def accaDates(id:str)-> dict:
+    dates={}
+    row = await db.fetchall("SELECT * FROM booking_evts WHERE item_id = ?", (id))
+    if not row:
+        return {"success":[]}
+    for item in [dict(ix) for ix in row]:
+        if item['date'] in dates:
+            dates[item['date']] = int(dates[item['date']]) + int(item['acca'])
+        else:
+            dates[item['date']] = int(item['acca'])
+    return {"success": dates}

@@ -3,7 +3,7 @@
 {% block page %}
 <template>
     {%raw%}
-    <span class="row justify-center q-mb-sm bookmark"><q-btn outine icon="bookmark" label="bookmark page" @click="bookmark('top')"></q-btn></span>
+    <span v-if="event.data.length" class="row justify-center q-mb-sm bookmark"><q-btn outine icon="bookmark" label="bookmark page" @click="bookmark('top')"></q-btn></span>
     <div class="q-pa-md q-gutter-md row justify-center my-card-con">
         <q-card class="my-card" v-for="event in event.data">
             <q-img
@@ -25,6 +25,34 @@
                   @click="confirm({ok:'deleteEvent', id: event.id, title:'Delete Event', msg:'Do you want to delete your booking?'})"
                 >
               </div>
+            </q-card-section>
+          </q-card>
+            <!-- no event data -->
+          <q-card class="my-card" v-if="!event.data.length">
+            <q-img
+             src="https://picsum.photos/400"
+              basic
+            >
+              <div class="absolute-bottom text-h6 text-center" style="backdrop-filter: blur(2px);">
+                No current booking events
+              </div>
+            </q-img>
+      
+            <q-card-section class="my-card-section text-center">
+                <a
+                  href="https://github.com/lnbits/lnbits"
+                  target="_blank"
+                  class="text-center text-primary"
+                  style="text-decoration: none;"
+                  >
+                    <q-icon
+                  name="flash_on"
+                  style="font-size: 1.4em;"
+                  :class="($q.dark.isActive) ? 'text-grey-7' : 'text-grey-5'"
+                  ></q-icon>
+                  Powered by <strong>LN</strong>bits
+                </a>
+                    
             </q-card-section>
           </q-card>
     </div>

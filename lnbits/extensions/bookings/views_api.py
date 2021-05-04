@@ -5,8 +5,10 @@ from lnbits.core.services import create_invoice, check_invoice_status
 from lnbits.decorators import api_check_wallet_key, api_validate_post_request
 from . import bookings_ext
 import json
+from .helpers import accaDates
 from .crud import (
    getItems,
+   getItem,
    createItem,
    deleteItem,
    getAlias,
@@ -16,6 +18,7 @@ from .crud import (
    getEvents,
    deleteEvent,
    getBookingEvent
+   
 )
 
 # add your endpoints here
@@ -90,6 +93,11 @@ async def api_public_get_items():
     alias = request.args.get('alias')
     items = await getItems(alias, True)
     return items, HTTPStatus.OK
+
+@bookings_ext.route("/api/v1/public/item/<id>", methods=["GET"])
+async def api_public_get_item(id):
+    item = await getItem(id, True)
+    return item, HTTPStatus.OK
 # events
 @bookings_ext.route("/api/v1/public/events/<id>", methods=["GET"])
 async def api_public_get_event(id):
@@ -109,3 +117,8 @@ async def api_public_delete_event(id):
     id_select = request.args.get('select')
     delete = await deleteEvent(id, cus_id, id_select)
     return delete, HTTPStatus.OK
+
+@bookings_ext.route("/api/v1/public/events/dates/<id>", methods=["GET"])
+async def api_public_get_event_dates(id):
+    dates = await accaDates(id)
+    return dates, HTTPStatus.OK

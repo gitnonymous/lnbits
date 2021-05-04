@@ -13,19 +13,20 @@ data(){
 methods:{
     init(p){
         const alias = location.pathname.split('/')[3]
-    const action ={}
-    action.loadEvents = async () =>{
+        const action ={}
+        action.loadEvents = async () =>{
         const cus_id = location.pathname.split('/')[3]
         let {data} = await LNbits.api
         .request(
         'GET',
         `/bookings/api/v1/public/events/${cus_id}`,null
         )
+        if(!data.length) {this.event.data = data; return data}
         data = data.map(x=>(Object.assign({...x},{data:JSON.parse(x.data)})))
         this.event.data = data
-    return data
-    }
-    return action[p.func](p)
+        return data
+        }
+        return action[p.func](p)
     },
     confirm (p) {
         this.$q.dialog({
@@ -44,7 +45,9 @@ methods:{
         })
     },
     async deleteEvent(id){
-        console.log(id)
+        const {data} = await LNbits.api.request('DELETE',`/bookings/api/v1/public/events/${id}?cus_id=${id}&select=id`,null)
+        data.success && Quasar.plugins.Notify.create({message: 'Booking deleted', color:'positive', timeout: 3000 })
+        data.success && (this.event.data = this.event.data.filter(x=> x.id !== id))
     },
     dateFormat(date){
         return moment(date).format('ddd, Do MMMM, YYYY')
@@ -55,7 +58,7 @@ methods:{
     }
 },
 mounted(){
-    document.querySelector('.q-toolbar a').innerHTML = `<strong>LNbits Booking Event</strong>`
+    document.querySelector('.q-toolbar a').innerHTML = `<strong>LN</strong>bits Booking Event`
 },
 async created(){
 console.log(await this.init({func: 'loadEvents'}))

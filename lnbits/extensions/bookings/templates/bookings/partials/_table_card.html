@@ -1,0 +1,34 @@
+<q-card v-for="item in card_data" :key="item.id" v-if="item.booking_item == 'table' && item.display" class="my-card">
+    {%raw%}
+    <q-card-section class="relative">
+        <div class="text-h6 q-mb-xs">{{item.title}}</div>
+        <div class="ellipsis">@{{item.business_name}} - {{item.location}}</div>
+        <div class="row no-wrap items-center justify-start">
+            <span>
+               <q-rating
+                  size="8px"
+                  v-model="stars[item.id].selected"
+                  :max="5"
+                  color="deep-purple"
+                  :readonly="true"
+                  :no-dimming="true" 
+                  icon="star_border"
+                  icon-selected="star"
+                  icon-half="star_half"
+                  />
+            </span> 
+            <span class="text-caption text-grey-6 q-ml-md q-my-md">{{stars[item.id].rating}} ({{stars[item.id].total}})</span>
+        </div>
+    </q-card-section>
+    <img :src="images(item.img_url)[0]">
+    <q-card-section class="row q-py-md relative">
+        <div class="q-py-lg wrap" style="height:110px; max-height:110px;">{{item.description}}</div> 
+        <div style="position: absolute; top:-1rem; left:0; width:100%;" class="row justify-center q-gutter-sm">
+            <q-btn class="bg-white text-black" elevated round icon="event_available" @click="showBooking(item.id)"/></q-btn>
+            <q-btn class="bg-white text-black" elevated round icon="photo" @click="showGallery(item.id)"/></q-btn>
+            <q-btn class="bg-white text-black" elevated round icon="place" @click="showLocation(item.id)"></q-btn>
+            <q-btn class="bg-white text-black" elevated round icon="info_outline" @click="showInfo(item.id)"></q-btn>
+        </div>
+    </q-card-section>
+    {%endraw%}
+</q-card>

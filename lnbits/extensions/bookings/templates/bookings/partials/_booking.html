@@ -30,7 +30,7 @@
             </div>
             <div :class="($q.dark.isActive) ? 'dark_color_correct q-pa-sm rounded-borders row items-center q-mb-md no-wrap' : 'bg-grey-2 q-pa-sm rounded-borders row items-center q-mb-md no-wrap'">
               <div class="column items-start q-mr-md col-2">
-                <q-btn icon="event" round color="purple">
+                <q-btn icon="event" round color="purple" :disabled="booking.btn">
                   <q-popup-proxy
                     @before-show="updateProxy"
                     transition-show="scale"
@@ -53,7 +53,8 @@
                
               </div>
                 <span v-if="booking.date.length" class="wrap justify-center col-10 text-center q-pr-md" ><strong style="font-size:1rem; width:100%;">{{dateDisplay}}</strong></span>
-                <span v-else class="col-8 text-center" ><strong style="font-size:1.4rem;">Select Date</strong></span>
+                <span v-if="booking.btn" class="col-8 text-center" ><strong style="font-size:1.4rem;">Checking dates...</strong></span>
+                <span v-else v-show="!booking.date.length" class="col-8 text-center" ><strong style="font-size:1.4rem;">Select Date</strong></span>
             </div>
             <q-form @submit="submitForm($event)" v-if="booking.datePicked" class="q-gutter-md q-mt-md">
               {%endraw%}
@@ -103,7 +104,7 @@
                     class="rounded cursor-pointer"
                   ></qrcode>
                 </q-responsive>
-                <span class="text-center q-pa-sm q-mb-sm">Powered by LNbits</span>
+                <span class="text-center q-pa-sm q-mb-sm">Powered by <strong>LN</strong>bits</span>
                 <span class="text-h4 text-center q-pa-sm">{{formatSats}} sat</span>
                   <div class="absolute q-pa-md row justify-center" style="bottom:0; width:100%;" >
                     <q-btn round elevated icon="cancel" @click="confirm({ok:'deleteBkEvent',id:cus_id, title:'Cancel Booking', msg:'This will delete the current booking!'})"></q-btn>
