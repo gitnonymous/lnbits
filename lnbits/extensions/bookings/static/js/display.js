@@ -39,6 +39,7 @@ new Vue({
           proxyDate: '',
           date: [], //[moment().format('yy/MM/DD')]
           payment_request: '',
+          payment_success: false,
           sats:0
         },
         info:{
@@ -71,12 +72,24 @@ new Vue({
         res.data.success && (
           this.booking.payment_request = res.data.success.payment_request, 
           this.booking.sats = res.data.success.sats,
+          this.booking.evt_url = location.origin+res.data.success.evt_url,
           this.isSubmitting = false, 
-          this.showQr = true)
+          this.showQr = true, this.checkForPayment(this.booking.item.id, res.data.success.payment_hash, res.data.success.evt_url))
         res.data.error && (
           Quasar.plugins.Notify.create({message: 'Processing Booking',color:'warning', timeout: 3000 })
           , this.isSubmitting = false)
 
+      },
+      async checkForPayment(item_id, payment_hash, redirect){
+        const payload = {
+          item_id,
+          payment_hash,
+          cus_id: this.cus_id
+        }
+        const {data} = await LNbits.api.request('POST',`/bookings/api/v1/public/events/payment`,null,payload)
+        data?.paid === 0
+          ? this.booking.check = setTimeout(_=> this.checkForPayment(item_id, payment_hash, redirect), 5000)
+          : (this.booking.payment_success = true, setTimeout(_=> window.open(location.origin+redirect, '_blank'),1000))
       },
       init(p){
         const alias = location.pathname.split('/')[3]
@@ -168,6 +181,7 @@ new Vue({
         let text
         p == 'gps' && (text = `${this.map.gps.lat},${this.map.gps.lon}`, this.copyText(text, 'GPS copied to clipboard!'))
         p == 'lnurl' && (text = this.booking.payment_request, this.copyText(text, 'LNURL copied to clipboard!'))
+        p == 'evt_url' && (text = this.booking.evt_url, this.copyText(text, 'Receipt link copied to clipboard!'))
       },
       loadStars(){
         let stars = {}
@@ -205,8 +219,10 @@ new Vue({
           proxyDate: '',
           date: [],
           payment_request: '',
+          payment_success: false,
           sats: 0
         }
+        this.showQr=false
         // this.booking.datePicked = false
         // this.booking.date = []; this.booking.total = ""
         this.form.data = {}
@@ -262,6 +278,7 @@ new Vue({
         alert(v)
       },
       async deleteBkEvent(id){
+        clearTimeout(this.booking.check)
         const {data} = await LNbits.api.request('DELETE',`/bookings/api/v1/public/events/${id}?cus_id=${id}&select=cus_id`,null)
         data.success && Quasar.plugins.Notify.create({message: 'Booking Cancelled', color:'positive', timeout: 3000 })
         this.showQr = false
@@ -286,8 +303,8 @@ new Vue({
     },
     watch:{
       showQr(v){
-        let qrslide = document.querySelector('.qr-code-card')
-        v ?  setTimeout(_=> qrslide.style.top = 0,1) : qrslide.style.top = '800px'
+        let qrslide = document.querySelector('.qr-code-card') && document.querySelector('.qr-code-card')
+        v ? setTimeout(_=> qrslide.style.top = 0,1) : qrslide && (qrslide.style.top = '800px')
       }
     },
     computed:{

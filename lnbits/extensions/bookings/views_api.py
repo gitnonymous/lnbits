@@ -5,7 +5,7 @@ from lnbits.core.services import create_invoice, check_invoice_status
 from lnbits.decorators import api_check_wallet_key, api_validate_post_request
 from . import bookings_ext
 import json
-from .helpers import accaDates
+from .helpers import accaDates, checkPayment
 from .crud import (
    getItems,
    getItem,
@@ -110,6 +110,13 @@ async def api_public_post_event():
     data = json.loads(data)
     payment = await processBooking(data)
     return payment, HTTPStatus.OK
+
+@bookings_ext.route("/api/v1/public/events/payment", methods=["POST"])
+async def api_public_post_event_payment():
+    data = await request.data
+    data = json.loads(data)
+    status = await checkPayment(data)
+    return status, HTTPStatus.OK
 
 @bookings_ext.route("/api/v1/public/events/<id>", methods=["DELETE"])
 async def api_public_delete_event(id):

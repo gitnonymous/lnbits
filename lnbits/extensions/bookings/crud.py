@@ -7,7 +7,7 @@ from lnbits.core.services import create_invoice, check_invoice_status
 from . import db
 import sys, json, time
 from datetime import date, datetime 
-from threading import Thread
+
 
 
 async def createAlias(
@@ -131,7 +131,7 @@ async def processBooking(bkI) -> dict:
     fee = await sats(bkI)
     [payment_hash, payment_request]= await create_invoice( # create invoice
         wallet_id=wallet, amount=fee, memo=cus_id)
-    return {"success":{"payment_hash":payment_hash, "payment_request": payment_request, "sats":fee}}
+    return {"success":{"payment_hash":payment_hash, "payment_request": payment_request, "sats":fee, "evt_url": '/bookings/evt/'+cus_id}}
 
 async def addBookingEvents(
     cus_id: str,

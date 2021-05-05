@@ -1,7 +1,17 @@
 from datetime import date, datetime
 import time
 from lnbits.utils.exchange_rates import fiat_amount_as_satoshis
+from lnbits.core.services import check_invoice_status
+from threading import Thread
 from . import db
+
+async def checkPayment(data)-> dict:
+    [item_id, payment_hash, cus_id] = data.values()
+    wallet = await getWalletFromItem(item_id)
+    status = await check_invoice_status(wallet, payment_hash)
+    payload = {"paid":1} if str(status) == 'settled' else {"paid":0}
+    await clearPrebook(cus_id) if payload['paid'] == 1 else None
+    return payload
 
 def preBookTimes() -> dict:
     timestamp = int(datetime.utcnow().timestamp() * 1000)
@@ -56,9 +66,9 @@ async def clearPrebook(cus_id:str) -> None:
         return
 
 def conCurrent(p) -> None:
-    func, vals = p
+    [func, vals] = p.values()
     #Thread(target=clearBookings, args=([{"cus_id":cus_id, "error": False}])).start()
-    Thread(target=func, args=([vals])).start()
+    Thread(target=str(func), args=([vals])).start()
 
 async def clearBookings(p) -> None: 
     cus = p['cus_id']

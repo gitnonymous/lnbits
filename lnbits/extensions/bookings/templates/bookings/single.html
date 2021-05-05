@@ -90,6 +90,16 @@
         backdrop-filter: blur(30px);
         transition: 0.5s ease-in-out;
     }
+    .q-dialog__backdrop{
+        background: inherit !important;
+        backdrop-filter: blur(6px) !important;  
+    }
+    .q-loading::before{
+        background: none !important;
+    }
+    .q-loading svg{
+        color:#cfcfcf !important;
+    }
     
     @media(max-width: 654px){
        .my-card{
