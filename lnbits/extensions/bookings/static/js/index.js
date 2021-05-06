@@ -49,7 +49,11 @@ new Vue({
                 ],
                 data:[]
             },
-            data:[]
+            data:[],
+            info:{
+                show:false,
+                data:{}
+            }
         }
       }
     },
@@ -90,7 +94,7 @@ new Vue({
                 
                  )
             !p && (
-                data = Object.assign({...this.form.data},{booking_item:this.form.data.booking_item.label}),
+                data = Object.assign({...this.form.data},{booking_item:this.form.data.booking_item.label},{feedback:{stars:0, count:0}}),
                 payload = {
                     usr_id: this.g.user.wallets[0].user,
                     wallet: data.wallet,
@@ -170,17 +174,31 @@ new Vue({
         eventsTableData(data){
             if(!data.length)return
             const evtsData = data.map(x=> ({
-                    cus_id: x.cus_id,
-                    item_id:x.data.item_id,
-                    email:x.data.email,
-                    type: x.bk_type,
-                    title: x.data?.title || 'N/A',
-                    qty: x.acca,
-                    date: x.date,
-                    paid: x.paid ? 'Paid' : 'Pending'
-                
+                id: x.id,
+                cus_id: x.cus_id,
+                item_id:x.data.item_id,
+                name: x.data?.name,
+                email:x.data?.email,
+                phone: x.data?.phone || null,
+                type: x.bk_type,
+                title: x.data?.title || 'N/A',
+                qty: x.acca,
+                paid: x.paid ? 'Paid' : 'Pending',
+                date: x.date,
+            
             }))
             this.events.table.data = evtsData
+        },
+        showBookingEvent(id){
+            this.events.info.data = this.events.table.data.find(x=> x.id == id)
+            console.log(this.events.info.data)
+            this.events.info.show =true
+        },
+        noNullEvt(){
+            let obj = {...this.events.info.data}
+            Object.keys(obj).forEach((k) => obj[k] == null && delete obj[k])
+            return obj
+
         },
         confirm (p) {
             this.$q.dialog({
@@ -286,7 +304,10 @@ new Vue({
             `
             
             return  this.copyText(iframe, 'iframe copied to clipboard!')
-          }
+        },
+        shortDate(date){
+            return moment(date).format('ddd, Do MMM')
+        }
     },
     computed:{
         dateDisplay(){
@@ -308,6 +329,6 @@ new Vue({
         alias && (items = await this.init({func: 'loadItems'}),
         this.table.data = this.tableItemsData(items), this.tableSort()
         )
-        alias && (events = await this.init({func: 'loadEvents'}), console.log(events))
+        alias && (events = await this.init({func: 'loadEvents'}))
     }
   })

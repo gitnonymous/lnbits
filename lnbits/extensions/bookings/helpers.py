@@ -1,5 +1,6 @@
 from datetime import date, datetime
-import time
+import time, json
+from quart import jsonify
 from lnbits.utils.exchange_rates import fiat_amount_as_satoshis
 from lnbits.core.services import check_invoice_status
 from threading import Thread
@@ -11,7 +12,12 @@ async def checkPayment(data)-> dict:
     status = await check_invoice_status(wallet, payment_hash)
     payload = {"paid":1} if str(status) == 'settled' else {"paid":0}
     await clearPrebook(cus_id) if payload['paid'] == 1 else None
+    await bookPayUpdate(cus_id)
     return payload
+
+async def bookPayUpdate(cus_id:str)-> bool:
+        await db.execute(f"UPDATE booking_evts SET paid = True WHERE cus_id = '{cus_id}'")
+        return True
 
 def preBookTimes() -> dict:
     timestamp = int(datetime.utcnow().timestamp() * 1000)
@@ -98,3 +104,21 @@ async def accaDates(id:str)-> dict:
         else:
             dates[item['date']] = int(item['acca'])
     return {"success": dates}
+
+async def feedBack(p) -> dict:
+    item_id, bk_id = p['item_id'], p['bk_id']
+    row = dict(await db.fetchone(f"SELECT * FROM booking_items WHERE id = '{item_id}'"))
+    data = json.loads(row['data']) 
+    feedback = data['feedback'] if 'feedback' in data else {}
+    if not feedback:
+        feedback['stars'] = p['stars']
+        feedback['count'] = 1
+        data['feedback'] = feedback
+    else:
+        stars, count = data['feedback']['stars'], data['feedback']['count']
+        data['feedback']['stars'] = p['stars'] + stars 
+        data['feedback']['count'] = count +1
+    data = json.dumps(data)
+    await db.execute(f"UPDATE booking_items SET data = '{data}' WHERE id = '{item_id}'")
+    await db.execute(f"UPDATE booking_evts SET feedback = True WHERE id = '{bk_id}'")
+    return jsonify({"success": True})

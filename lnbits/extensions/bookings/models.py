@@ -23,6 +23,7 @@ class BookingEvent(NamedTuple):
    bk_exp: int
    paid: bool
    date: str
+   feedback: bool
    data: str
 
 

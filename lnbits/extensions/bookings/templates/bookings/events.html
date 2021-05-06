@@ -20,10 +20,27 @@
                 <div class="q-pa-xs text-center">{{event.data.email}}</div>
               <div class="row justify-center q-mt-lg">
                   <q-btn
+                  v-show="bookingExpired(event.date)"
                   outline
                   label="delete booking"
                   @click="confirm({ok:'deleteEvent', id: event.id, title:'Delete Event', msg:'Do you want to delete your booking?'})"
-                >
+                ></q-btn>
+                <div v-show="!bookingExpired(event.date)">
+                  <q-form @submit="ratingSubmit({item_id: event.data.item_id, id: event.id})" class="q-gutter-md column items-center justify-center">
+                    <q-separator></q-separator>
+                    <span>Feedback Rating</span>
+                    <q-rating
+                      v-model="form.data.stars"
+                      max="5"
+                      size="3.5em"
+                      color="purple"
+                      icon-selected="star"
+                      dimming
+                    /></q-rating>
+                    
+                    <q-btn label="Submit" type="submit" color="deep-purple" class="q-mt-lg"/></q-btn>
+                  </q-form>
+                </div>
               </div>
             </q-card-section>
           </q-card>

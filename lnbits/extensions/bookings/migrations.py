@@ -45,6 +45,7 @@ async def m001_initial(db):
            bk_exp INTEGER NOT NULL,
            paid BOOLEAN NOT NULL,
            date TEXT NOT NULL,
+           feedback BOOLEAN NOT NULL,
            data TEXT NOT NULL,
            time TIMESTAMP NOT NULL DEFAULT (strftime('%s', 'now'))
        );

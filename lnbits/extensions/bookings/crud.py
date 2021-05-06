@@ -149,6 +149,7 @@ async def addBookingEvents(
                 int(exp['bk_exp']),
                 False,
                 date,
+                False,
                 json.dumps(bkI)
             )
         return True
@@ -164,21 +165,23 @@ async def createBookingEvent(
     bk_exp: int,
     paid: bool,
     date: str,
+    feedback: bool,
     data: str,
 ) -> BookingEvent:
     id = urlsafe_short_hash()
     await db.execute(
         """
-        INSERT INTO booking_evts (id,cus_id, item_id,alias,bk_type,acca, bk_exp,paid, date,data)
-        VALUES (?,?,?,?,?,?,?,?,?,?)
+        INSERT INTO booking_evts (id,cus_id, item_id,alias,bk_type,acca, bk_exp,paid, date, feedback, data)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)
     """,
-        (id,cus_id, item_id,alias,bk_type,acca, bk_exp, paid, date,data)
+        (id,cus_id, item_id,alias,bk_type,acca, bk_exp, paid, date, feedback, data)
     )
      
 async def getEvents(
     alias: str,
 ) -> List:
-        row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = ? AND paid = ? ", (alias, False))
+        # row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = ? AND paid = ? ", (alias, False))
+        row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = ?", (alias))
         if not row:
             return {[]}
         else:

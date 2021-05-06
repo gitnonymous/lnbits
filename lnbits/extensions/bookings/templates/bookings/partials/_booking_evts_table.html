@@ -29,9 +29,7 @@
               size="xs"
               icon="search"
               :color="($q.dark.isActive) ? 'grey-7' : 'grey-5'"
-              type="a"
-              :href="form.booking_url"
-              target="_blank"
+              @click="showBookingEvent(props.row.id)"
             ></q-btn>
           </q-td>
           <q-td key="title" :props="props" auto-width>

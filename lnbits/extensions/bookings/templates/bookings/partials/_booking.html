@@ -15,7 +15,7 @@
                 class="text-center q-pb-lg row justify-between items-center no-wrap" 
                 style="font-size:2rem; width: 100%;"
                 >
-                <q-img :src="booking.img || img_default" style="width: 80px; height:auto; border-radius:10px;"></q-img>
+                <q-img :src="booking.img || img_default" style="width: 80px; height:auto;  max-height:60px; border-radius:10px;"></q-img>
                 <span class="wrap">{{booking.total}}</span>
               
               </div>
@@ -24,7 +24,7 @@
                 class="text-center q-pb-lg column justify-between items-center no-wrap" 
                 style="font-size:1.5rem; width: 100%;"
                 >
-                <q-img :src="booking.img || img_default" style="width: 80px; height:auto; border-radius:10px;"></q-img>
+                <q-img :src="booking.img || img_default" style="width: 80px; height:auto;  max-height:60px; border-radius:10px;"></q-img>
                 <span class="wrap q-mt-sm">@{{booking.business_name}}</span>
               
               </div>
@@ -110,11 +110,16 @@
                       <q-btn round elevated icon="cancel" @click="confirm({ok:'deleteBkEvent',id:cus_id, title:'Cancel Booking', msg:'This will delete the current booking!'})"></q-btn>
                     </div>
               </div>
-              <div class="relative column justify-center items-center" style="height: 100%;" v-show="booking.payment_success">
+              <div
+                class="relative column justify-center items-center"
+                style="height: 100%;"
+                v-show="booking.payment_success"
+                transition="scale"
+                >
                     <q-img
                     :v-show="booking.payment_success"
                     src="https://cdn3.iconfinder.com/data/icons/flat-actions-icons-9/792/Tick_Mark_Dark-512.png"
-                    style="width: 80px"
+                    style="width: 80px;"
                     transition="rotate"
                     :ratio="1"
                     basic
