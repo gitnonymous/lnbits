@@ -298,7 +298,8 @@ new Vue({
         }).onDismiss(() => {
           // console.log('I am triggered on both OK and Cancel')
         })
-    },
+      },
+      
       
     },
     watch:{

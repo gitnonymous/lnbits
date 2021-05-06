@@ -269,7 +269,24 @@ new Vue({
         evtAcca(id, date){
             const evts = this.events.data.filter(x=> x.data.item_id == id && x.date == date).reduce((ac,x)=> {ac += x.acca; return ac},0)
             return evts
-        }
+        },
+        genIframe(id){
+            let link = `${location.origin}/bookings/single/${id}`
+            const iframe = `
+            <iframe 
+            width="375" 
+            height="550" 
+            frameborder="0" 
+            scrolling="no" 
+            allowtransparency="true" 
+            allow="clipboard-read; clipboard-write; top-navigation;" 
+            src="${link}" 
+            style="border-radius:5px;">
+            </iframe>
+            `
+            
+            return  this.copyText(iframe, 'iframe copied to clipboard!')
+          }
     },
     computed:{
         dateDisplay(){
