@@ -180,8 +180,9 @@ async def createBookingEvent(
 async def getEvents(
     alias: str,
 ) -> List:
+        dt = datetime.today().strftime('%Y/%m/%d')
         # row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = ? AND paid = ? ", (alias, False))
-        row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = ?", (alias))
+        row = await db.fetchall(f"SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = '{alias}' AND date >= '{dt}'")
         if not row:
             return {[]}
         else:
@@ -190,7 +191,7 @@ async def getEvents(
 async def getBookingEvent(
     cus_id: str,
 ) -> List:
-        row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE cus_id = ?", (cus_id))
+        row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE cus_id = ? AND feedback = FALSE", (cus_id))
         if not row:
             return []
         else:

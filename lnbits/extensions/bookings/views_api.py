@@ -21,8 +21,6 @@ from .crud import (
    
 )
 
-# add your endpoints here
-
 # account authorized api calls
 # Booking Items API
 @bookings_ext.route("/api/v1/items", methods=["GET"])
@@ -98,6 +96,7 @@ async def api_public_get_items():
 async def api_public_get_item(id):
     item = await getItem(id, True)
     return item, HTTPStatus.OK
+
 # events
 @bookings_ext.route("/api/v1/public/events/<id>", methods=["GET"])
 async def api_public_get_event(id):

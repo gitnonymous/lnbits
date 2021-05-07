@@ -32,7 +32,7 @@
           </q-item>
         </template>
         </q-select>
-      <q-form @submit="sendFormData($event)">
+      <q-form @submit="sendFormData()">
         <div class="q-gutter-md q-mt-md" v-if='form.booking.table'> {% include "bookings/partials/_table_booking_form_create.html" %}</div>
         <div class="q-gutter-md q-mt-md" v-if='form.booking.room'> {% include "bookings/partials/_room_booking_form_create.html" %}</div>
         <div class="row q-mt-lg">

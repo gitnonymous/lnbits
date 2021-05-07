@@ -20,6 +20,7 @@
             <span class="text-caption text-grey-6 q-ml-md q-my-md">{{stars[item.id].rating}} ({{stars[item.id].total}})</span>
         </div>
         <q-btn flat rounded v-if="item.price" class="card-price" @click="showBooking(item.id)">{{item.display_price}}</q-btn>
+        <q-btn flat rounded v-if="item.deposit" class="card-price" @click="showBooking(item.id)">{{item.display_deposit}}</q-btn>
     </q-card-section>
     <img :src="images(item.img_url)[0]">
     <q-card-section class="row q-py-md relative">

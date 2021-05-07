@@ -66,23 +66,22 @@ new Vue({
         }
     },
     methods:{
-        async sendFormData(e,p){
-            e.preventDefault()
+        async sendFormData(){
             let itemdata = this.table.data.filter(x=> x.id == this.form.data.id)[0]
             let payload, res, data
-            p == 'edit' && (
-                data = Object.assign({...itemdata},{...this.form.data},{booking_item:itemdata.booking_item  }),
+            this.form.data.id 
+            ?   (
+                data = {...this.form.data},
                 payload = {
                     usr_id: this.g.user.wallets[0].user,
-                    id: data.id,
-                    wallet: data.wallet,
+                    id: itemdata.id,
+                    wallet: itemdata.wallet,
                     alias: this.alias,
-                    display: data.display || false,
+                    display: itemdata.display || false,
                     func: 'updateItem',
                     data
                 },
                 delete payload.data.wallet,
-                console.log(data),
                 payload.data = JSON.stringify(payload.data),
                 res = await LNbits.api
                 .request('PUT',
@@ -90,10 +89,11 @@ new Vue({
                 this.g.user.wallets[0].inkey,
                 payload
                 ),
-                res.data.success && this.formReset()
-                
+                res.data.success && (
+                    this.table.data[this.table.data.findIndex(x=>x.id == itemdata.id)]= this.tableItemsData([payload])[0],
+                    this.formReset())
                  )
-            !p && (
+            :   (
                 data = Object.assign({...this.form.data},{booking_item:this.form.data.booking_item.label},{feedback:{stars:0, count:0}}),
                 payload = {
                     usr_id: this.g.user.wallets[0].user,
@@ -104,7 +104,6 @@ new Vue({
                 },
                 delete payload.data.wallet,
                 payload.data = JSON.stringify(payload.data),
-                console.log(payload),
                 res = await LNbits.api
                 .request('POST',
                 `/bookings/api/v1/items`, 
@@ -121,7 +120,6 @@ new Vue({
             const {data} = val
             data.booking_item && (this.form.booking[data.booking_item.label] = true)
             if(data.booking_item)for(x in this.form.booking){x !== data.booking_item.label && (this.form.booking[x] = false)}
-            // console.log(val);
         },
         formReset(p){
             for(x in this.form.booking){this.form.booking[x] = false}
@@ -191,7 +189,6 @@ new Vue({
         },
         showBookingEvent(id){
             this.events.info.data = this.events.table.data.find(x=> x.id == id)
-            console.log(this.events.info.data)
             this.events.info.show =true
         },
         noNullEvt(){
@@ -209,11 +206,8 @@ new Vue({
             }).onOk(() => {
               p?.ok == 'deleteBookingItem' && this.deleteBookingItem(p.id)
             }).onOk(() => {
-              // console.log('>>>> second OK catcher')
             }).onCancel(() => {
-              // console.log('>>>> Cancel')
             }).onDismiss(() => {
-              // console.log('I am triggered on both OK and Cancel')
             })
         },
         tableSort(){
@@ -268,7 +262,6 @@ new Vue({
         },
         save () {
         this.form.data.date = this.form.data.proxyDate
-        console.log(this.form.data.date);
         },
         datePickerFormat(){
             let date_val, cur_date = this.form.data.date

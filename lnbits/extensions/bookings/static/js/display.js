@@ -65,8 +65,8 @@ new Vue({
             currency: this.booking.item.currency
           }
         );
-        console.log(payload);
         /[to]|[from]/.test(payload.date.toString()) && (payload.date = inBetweenDates({startDate: payload.date[0].from, endDate: payload.date[0].to}))
+        this.booking.item.deposit && (payload.deposit = this.booking.item.deposit)
         this.isSubmitting =true
         let res = await LNbits.api.request('POST',`/bookings/api/v1/public/events`,null,payload)
         res.data.success && (
@@ -120,7 +120,8 @@ new Vue({
           {id:x.id},
           {alias:x.alias},
           {display:x.display},
-          {display_price: LNbits.utils.formatCurrency(JSON.parse(x.data).price, JSON.parse(x.data).currency || 'USD')}
+          {display_price: LNbits.utils.formatCurrency(JSON.parse(x.data).price, JSON.parse(x.data).currency || 'USD')},
+          {display_deposit: LNbits.utils.formatCurrency(JSON.parse(x.data)?.deposit, JSON.parse(x.data).currency || 'USD')}
           )))
       },
       displaySort(){
@@ -153,14 +154,16 @@ new Vue({
       },
       showBooking(id){
         let item = this.card_data.find(x=> x.id == id)
+        console.log(item.display_deposit);
         this.booking.item = this.card_data.find(x=> x.id == id)
-        console.log(this.booking.item);
         this.booking.title = item.title; this.booking.business_name = item.business_name
         this.booking.booking_item = item.booking_item
+        !/[NaN]/.test(item.display_deposit) && +item.display_deposit.substring(1) > 0  ? (this.booking.display_deposit = item.display_deposit) : ''
         this.booking.multi_days = item?.multi_days?.value
         this.booking.id = id; item.charge_type && (this.booking.charge_type = item.charge_type)
         this.booking.img = item.img_url ? item.img_url.split(',')[0] : this.img_default
         this.getItemDates(id)
+        console.log(this.booking);
         this.booking.show = true
       },
       showInfo(id){
@@ -181,13 +184,15 @@ new Vue({
         let text
         p == 'gps' && (text = `${this.map.gps.lat},${this.map.gps.lon}`, this.copyText(text, 'GPS copied to clipboard!'))
         p == 'lnurl' && (text = this.booking.payment_request, this.copyText(text, 'LNURL copied to clipboard!'))
-        p == 'evt_url' && (text = this.booking.evt_url, this.copyText(text, 'Receipt link copied to clipboard!'))
+        p == 'evt_url' && (text = this.booking.evt_url, this.copyText(text, 'Booking link copied to clipboard!'))
       },
       loadStars(){
         let stars = {}
         this.card_data.map(x=> {
           let rating = 4+ +(Math.random()).toFixed(1), total = 100 + Math.floor(Math.random() * 1000)
-          x.stars ? stars[x] = x.stars : stars[x.id] = {total, rating, selected: rating}
+          x.feedback 
+          ? stars[x.id] = {total: x.feedback.count, rating: +(x.feedback.stars/x.feedback.count).toFixed(1) || 0, selected: +(x.feedback.stars/x.feedback.count).toFixed(1) || 5} 
+          : stars[x.id] = {total, rating, selected: rating}
         })
         this.stars = stars
       },
@@ -292,11 +297,8 @@ new Vue({
         }).onOk(() => {
           p?.ok == 'deleteBkEvent' && this.deleteBkEvent(p.id)
         }).onOk(() => {
-          // console.log('>>>> second OK catcher')
         }).onCancel(() => {
-          // console.log('>>>> Cancel')
         }).onDismiss(() => {
-          // console.log('I am triggered on both OK and Cancel')
         })
       },
       

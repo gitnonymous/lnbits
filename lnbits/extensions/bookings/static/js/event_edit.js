@@ -42,11 +42,8 @@ methods:{
         }).onOk(() => {
           p?.ok == 'deleteEvent' && this.deleteEvent(p.id)
         }).onOk(() => {
-          // console.log('>>>> second OK catcher')
         }).onCancel(() => {
-          // console.log('>>>> Cancel')
         }).onDismiss(() => {
-          // console.log('I am triggered on both OK and Cancel')
         })
     },
     async ratingSubmit(p){
@@ -74,7 +71,7 @@ methods:{
     },
     bookingExpired(date){
       let expired;
-      new Date().valueOf() > new Date(date).valueOf() ? expired = true : expired = false
+      moment(Date()).format('yyyy/MM/DD') > date ? expired = true : expired = false
       return expired
     },
     bookmark(pos){

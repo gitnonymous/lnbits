@@ -39,12 +39,12 @@ async def sats(bkI) -> int:
     default = 100 # default booking fee
     if 'deposit' in bkI:
         deposit = bkI['deposit']
-        if int(deposit) < default:
+        if float(deposit) < default:
             deposit = default
         return int(await fiat_amount_as_satoshis(float(deposit), bkI['currency']))
     elif 'total' in bkI:
         total = bkI['total']
-        if int(total) < default:
+        if float(total) < default:
             total = default
         return int(await fiat_amount_as_satoshis(float(total), bkI['currency']))
     else:
@@ -95,9 +95,9 @@ async def clearBookings(p) -> None:
 
 async def accaDates(id:str)-> dict:
     dates={}
-    row = await db.fetchall("SELECT * FROM booking_evts WHERE item_id = ?", (id))
+    row = await db.fetchall("SELECT * FROM booking_evts WHERE item_id = ? AND paid = TRUE", (id))
     if not row:
-        return {"success":[]}
+        return {"success":{}}
     for item in [dict(ix) for ix in row]:
         if item['date'] in dates:
             dates[item['date']] = int(dates[item['date']]) + int(item['acca'])

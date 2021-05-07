@@ -91,35 +91,47 @@
 </div>
 <div class="row justify-between">
     <q-input
-    class="col-5 q-pr-sm"
+    class="col-6 q-pr-sm"
     filled
     dense
     v-model.trim="form.data.price"
     type="number"
     label="Price"
 ></q-input>
-    <q-select
-    class="col-7"
+    <q-input
+    class="col-6"
     filled
     dense
-    emit-label
-    transition-show="flip-up"
-    transition-hide="flip-down"
-    v-model="form.data.charge_type"
-    :options="['room','person']"
-    label="per room / person"
+    v-model.trim="form.data.deposit"
+    type="number"
+    label="Deposit"
+></q-input>
+    
+</div>
+<div class="row justify-between">
+    <q-select
+        class="col-5 q-pr-sm"
+        filled
+        dense
+        emit-label
+        transition-show="flip-up"
+        transition-hide="flip-down"
+        v-model="form.data.multi_days"
+        :options="[{label:'true', value: 1},{label: 'false',value: 0}]"
+        label="Muli booking days"
+        ></q-select>
+        <q-select
+        class="col-7"
+        filled
+        dense
+        emit-label
+        transition-show="flip-up"
+        transition-hide="flip-down"
+        v-model="form.data.charge_type"
+        :options="['room','person']"
+        label="per room / person"
     ></q-select>
 </div>
-<q-select
-    filled
-    dense
-    emit-label
-    transition-show="flip-up"
-    transition-hide="flip-down"
-    v-model="form.data.multi_days"
-    :options="[{label:'true', value: 1},{label: 'false',value: 0}]"
-    label="Muli booking days"
-    ></q-select>
     <q-input
     filled
     dense

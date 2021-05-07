@@ -40,6 +40,13 @@
     type="text"
     label="Service Description *"
 ></q-input>
+  <q-input
+      filled
+      dense
+      v-model.trim="form.data.location"
+      type="text"
+      label="Location"
+    ></q-input>
 <div class="row justify-between">
     <q-input
     class="col-4 q-pr-sm"
@@ -48,15 +55,27 @@
     v-model.trim="form.data.acca"
     type="number"
     label="Max Covers *"
-  ></q-input>
+    ></q-input>
     <q-input
-    class="col-8"
+    class="col-4 q-pr-sm"
     filled
     dense
-    v-model.trim="form.data.location"
-    type="text"
-    label="Location"
+    v-model.trim="form.data.deposit"
+    type="number"
+    label="Deposit"
   ></q-input>
+  <q-select
+  class="col-4"
+  filled
+  dense
+  emit-value
+  options-cover
+  transition-show="scale"
+  transition-hide="scale"
+  v-model="form.data.currency"
+  :options="form.currRates"
+  label="Currency"
+  ></q-select>
 </div>
 <div
   :class="($q.dark.isActive) ? 'dark_color_correct q-pa-sm rounded-borders' : 'bg-grey-2 q-pa-sm rounded-borders'"
