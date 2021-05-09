@@ -1,11 +1,12 @@
 #!/usr/bin/python
 from typing import List, Optional, Union
+from quart import jsonify
 from .models import Alias, BookingItem, BookingEvent
 from lnbits.helpers import urlsafe_short_hash
 from .helpers import preBookTimes, getWalletFromItem, sats, checkPrebook, clearPrebook
 from lnbits.core.services import create_invoice, check_invoice_status
 from . import db
-import sys, json, time
+import json
 from datetime import date, datetime 
 
 
@@ -58,7 +59,6 @@ async def getItems(
             else:
                 return json.dumps( [dict(ix) for ix in row] )
         except:
-            print(sys.exc_info()[0])
             return {"error":"Database Error"}
 
 async def getItem(
@@ -127,7 +127,8 @@ async def processBooking(bkI) -> dict:
     if not booked:# remove any entries from booking_evts table
         await deleteEvent('none', cus_id, 'cus_id')
         return {"error": "Booking error, try booking again."}
-    wallet = await getWalletFromItem(bkI['item_id']) # retrieve wallet id of booking item
+    w = await getWalletFromItem(bkI['item_id']) # retrieve wallet id of booking item
+    usr, wallet = w.values()
     fee = await sats(bkI)
     [payment_hash, payment_request]= await create_invoice( # create invoice
         wallet_id=wallet, amount=fee, memo=cus_id)
@@ -181,8 +182,8 @@ async def getEvents(
     alias: str,
 ) -> List:
         dt = datetime.today().strftime('%Y/%m/%d')
-        # row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = ? AND paid = ? ", (alias, False))
-        row = await db.fetchall(f"SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = '{alias}' AND date >= '{dt}'")
+        row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = ? ", (alias))
+        # row = await db.fetchall(f"SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = '{alias}' AND date >= '{dt}'")
         if not row:
             return {[]}
         else:
@@ -199,8 +200,19 @@ async def getBookingEvent(
 
 async def deleteEvent(id:str, cus_id:str, select:str)-> dict:
     db_id = id if select == 'id' else cus_id
-    print(db_id), print(select)
     await db.execute(f"DELETE FROM booking_evts WHERE {select} = '{db_id}'")
     if select == 'cus_id':
         await clearPrebook(cus_id)
     return {"success":"Booking Deleted"}
+
+async def setSettings(p) -> dict:
+    if 'GET' in p:
+        row = await db.fetchone("SELECT data FROM usr_settings WHERE usr = ?", (p["GET"]))
+        if row is None:
+            return jsonify(success=[])
+        else:
+            return jsonify(success=[json.loads(row[0])])
+    else:
+        usr, data = p.values()
+        await db.execute("INSERT OR REPLACE INTO usr_settings (usr,data) VALUES(?,?)",(usr,data))
+        return {"success":"settings updated"}   

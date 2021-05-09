@@ -54,6 +54,13 @@ new Vue({
                 show:false,
                 data:{}
             }
+        },
+        settings:{
+            show:false,
+            form:{
+                data:{}
+            },
+            data:[]
         }
       }
     },
@@ -115,6 +122,19 @@ new Vue({
                     this.formReset()
                     )
                 )
+        },
+        async sendSettingsData(){
+            const payload = {
+                usr: this.g.user.wallets[0].user,
+                data: JSON.stringify(this.settings.form.data)
+            }
+            const {data} = await LNbits.api
+            .request('POST',
+            `/bookings/api/v1/settings`, 
+            this.g.user.wallets[0].inkey,
+            payload
+            )
+            data.success && Quasar.plugins.Notify.create({message: data.success, timeout: 3000 })
         },
         formAction(val){
             const {data} = val
@@ -191,6 +211,10 @@ new Vue({
             this.events.info.data = this.events.table.data.find(x=> x.id == id)
             this.events.info.show =true
         },
+        showSettings(){
+            !this.settings.data.length ? '' : this.settings.form.data = {...this.settings.data[0]}
+            this.settings.show = true
+        },
         noNullEvt(){
             let obj = {...this.events.info.data}
             Object.keys(obj).forEach((k) => obj[k] == null && delete obj[k])
@@ -253,6 +277,16 @@ new Vue({
                 data = data.map(x=>(Object.assign({...x},{data:JSON.parse(x.data)})))
                 this.events.data = data; this.eventsTableData(data)
                 return data
+            }
+            action.loadSettings = async () =>{
+                const urlParams = new URLSearchParams(location.search)
+                const {data} = await LNbits.api
+                .request(
+                'GET',
+                `/bookings/api/v1/settings?usr=${urlParams.get('usr')}`,
+                this.g.user.wallets[0].inkey
+            )
+                return data.success
             }
             return action[p.func](p)
         },
@@ -323,5 +357,6 @@ new Vue({
         this.table.data = this.tableItemsData(items), this.tableSort()
         )
         alias && (events = await this.init({func: 'loadEvents'}))
+        this.settings.data = await this.init({func: 'loadSettings'})
     }
   })

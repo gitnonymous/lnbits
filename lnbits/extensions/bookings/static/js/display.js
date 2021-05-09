@@ -89,7 +89,7 @@ new Vue({
         const {data} = await LNbits.api.request('POST',`/bookings/api/v1/public/events/payment`,null,payload)
         data?.paid === 0
           ? this.booking.check = setTimeout(_=> this.checkForPayment(item_id, payment_hash, redirect), 5000)
-          : (this.booking.payment_success = true, setTimeout(_=> window.open(location.origin+redirect, '_blank'),1000))
+          : (this.booking.payment_success = true, setTimeout(_=> window.open(location.origin+redirect, '_blank'),3000))
       },
       init(p){
         const alias = location.pathname.split('/')[3]
@@ -154,7 +154,6 @@ new Vue({
       },
       showBooking(id){
         let item = this.card_data.find(x=> x.id == id)
-        console.log(item.display_deposit);
         this.booking.item = this.card_data.find(x=> x.id == id)
         this.booking.title = item.title; this.booking.business_name = item.business_name
         this.booking.booking_item = item.booking_item
@@ -163,7 +162,6 @@ new Vue({
         this.booking.id = id; item.charge_type && (this.booking.charge_type = item.charge_type)
         this.booking.img = item.img_url ? item.img_url.split(',')[0] : this.img_default
         this.getItemDates(id)
-        console.log(this.booking);
         this.booking.show = true
       },
       showInfo(id){

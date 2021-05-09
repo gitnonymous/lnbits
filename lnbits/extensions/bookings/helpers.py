@@ -1,5 +1,6 @@
 from datetime import date, datetime
-import time, json
+from typing import Optional
+import time, json, httpx
 from quart import jsonify
 from lnbits.utils.exchange_rates import fiat_amount_as_satoshis
 from lnbits.core.services import check_invoice_status
@@ -8,11 +9,14 @@ from . import db
 
 async def checkPayment(data)-> dict:
     [item_id, payment_hash, cus_id] = data.values()
-    wallet = await getWalletFromItem(item_id)
+    w = await getWalletFromItem(item_id) 
+    usr, wallet = w.values()
     status = await check_invoice_status(wallet, payment_hash)
     payload = {"paid":1} if str(status) == 'settled' else {"paid":0}
-    await clearPrebook(cus_id) if payload['paid'] == 1 else None
-    await bookPayUpdate(cus_id)
+    if payload['paid'] == 1:
+        await clearPrebook(cus_id)
+        await bookPayUpdate(cus_id)
+        await lnbits_booking_bot(usr, cus_id)
     return payload
 
 async def bookPayUpdate(cus_id:str)-> bool:
@@ -25,13 +29,13 @@ def preBookTimes() -> dict:
     bk_exp = timestamp + int(1000*60*60*24*21)
     return {"lnurl_exp":lnurl_exp, "bk_exp":bk_exp}
 
-async def getWalletFromItem(item_id:str) -> str:
+async def getWalletFromItem(item_id:str) -> dict:
     try:
         row = await db.fetchone("SELECT * FROM booking_items WHERE id = ?", (item_id))
         if not row:
             raise 'error'
         else:
-            return row[1]
+            return {"usr":row[0],"wallet":row[1]}
     except:
         return {"error":"Database Error"}
 
@@ -39,14 +43,16 @@ async def sats(bkI) -> int:
     default = 100 # default booking fee
     if 'deposit' in bkI:
         deposit = bkI['deposit']
+        print(float(deposit))
+        print(bkI['currency'])
         if float(deposit) < default:
             deposit = default
-        return int(await fiat_amount_as_satoshis(float(deposit), bkI['currency']))
+        return await fiat_amount_as_satoshis(float(deposit), bkI['currency'])
     elif 'total' in bkI:
         total = bkI['total']
         if float(total) < default:
             total = default
-        return int(await fiat_amount_as_satoshis(float(total), bkI['currency']))
+        return await fiat_amount_as_satoshis(float(total), bkI['currency'])
     else:
         return int(default) 
 
@@ -122,3 +128,27 @@ async def feedBack(p) -> dict:
     await db.execute(f"UPDATE booking_items SET data = '{data}' WHERE id = '{item_id}'")
     await db.execute(f"UPDATE booking_evts SET feedback = True WHERE id = '{bk_id}'")
     return jsonify({"success": True})
+
+async def checkSettings(id:str) -> Optional[dict]:
+    row = await db.fetchone("SELECT data FROM usr_settings WHERE usr = ?",(id))
+    return json.loads(row[0])
+
+async def lnbits_booking_bot(usr:str, cus_id:str)-> dict:
+    try:
+        chid = await checkSettings(usr) #check settings
+        if 'tg_chatId' in chid and chid['tg_chatId'] is not None:
+            bk_data = await db.fetchone("SELECT data FROM booking_evts WHERE cus_id = ? ORDER BY time DESC LIMIT 1",(cus_id))
+            bd = json.loads(bk_data[0])
+            payload = {
+                "token": "3d99a933-f919-43a0-ae6c-003496eb1037",
+                "msg": f"*{bd['bk_type'].title()}* booked on *{', '.join(bd['date'])}* by *{bd['name']}*({bd['acca']})",
+                "ch_id": int(chid['tg_chatId'])
+            }
+            headers = {"Content-Type":"application/json"}
+            url = 'https://lnbooking.duckdns.org:12567/lnbookings'
+            r = httpx.request('POST', url, headers=headers, json=payload, verify=False )
+            return r.json()
+        else:
+            return {}
+    except:
+        return {"msg":'except'  }

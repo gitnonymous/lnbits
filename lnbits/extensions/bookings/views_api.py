@@ -5,7 +5,7 @@ from lnbits.core.services import create_invoice, check_invoice_status
 from lnbits.decorators import api_check_wallet_key, api_validate_post_request
 from . import bookings_ext
 import json
-from .helpers import accaDates, checkPayment, feedBack
+from .helpers import accaDates, checkPayment, feedBack, lnbits_booking_bot
 from .crud import (
    getItems,
    getItem,
@@ -17,7 +17,8 @@ from .crud import (
    processBooking,
    getEvents,
    deleteEvent,
-   getBookingEvent
+   getBookingEvent,
+   setSettings
    
 )
 
@@ -83,6 +84,22 @@ async def events_get():
     events = await getEvents(alias)
     return events, HTTPStatus.OK
 
+# Booking settings API
+@bookings_ext.route("/api/v1/settings", methods=["POST"])
+@bookings_ext.route("/api/v1/settings", methods=["GET"])
+@api_check_wallet_key('invoice')
+async def settings_post():
+    method = str(request.method)
+    if method == 'POST':
+        data = await request.data
+        data = json.loads(data)
+        settings = await setSettings(data)
+        return settings, HTTPStatus.OK
+    else:
+        usr = request.args.get('usr')
+        settings = await setSettings({"GET": usr})
+        return settings, HTTPStatus.OK
+
 
 # public side api calls
 # items
@@ -129,10 +146,14 @@ async def api_public_get_event_dates(id):
     dates = await accaDates(id)
     return dates, HTTPStatus.OK
 
-
 @bookings_ext.route("/api/v1/public/events/feedback", methods=["POST"])
 async def api_public_post_event_feedback():
     data = await request.data
     data = json.loads(data)
     feedback = await feedBack(data)
+    return feedback, HTTPStatus.OK
+
+@bookings_ext.route("/api/v1/public/", methods=["GET"])
+async def api_public_post_test():
+    feedback = await lnbits_booking_bot("13e08fc415f74d5cbb1fe9e0fe600eaa", "YV53ySTo2ifEaDxVHZR2wd")
     return feedback, HTTPStatus.OK

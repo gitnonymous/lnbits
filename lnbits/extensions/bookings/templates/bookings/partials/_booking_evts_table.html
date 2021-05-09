@@ -49,7 +49,7 @@
             {{props.row.paid}}
           </q-td>
           <q-td key="email" :props="props" auto-width>
-            {{props.row.email}}
+            <a style="text-decoration:none; color:inherit;" :href="'mailto:'+props.row.email">{{props.row.email}}</a>
           </q-td>
         </q-tr>
       </template>

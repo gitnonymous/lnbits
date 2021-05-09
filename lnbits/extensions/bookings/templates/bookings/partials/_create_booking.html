@@ -1,6 +1,11 @@
 <q-card>
-    <q-card-section>
+    <q-card-section class="q-gutter-xs">
       <q-btn unelevated color="deep-purple" @click="form.show = true; form.newItem = true" icon-right="event_available" label="New Booking Item" ></q-btn>
+      <q-btn 
+      unelevated color="deep-purple" 
+      @click="showSettings()" 
+      icon-right="settings" 
+      label="Settings" ></q-btn>
     </q-card-section>
   </q-card>
   {% include "bookings/partials/_booking_item_table.html" %}
@@ -62,3 +67,4 @@
   </q-dialog>
   {% include "bookings/partials/_edit_booking_item.html" %}
   {% include "bookings/partials/_booking_evt_details.html" %}
+  {% include "bookings/partials/_settings_form.html" %}
