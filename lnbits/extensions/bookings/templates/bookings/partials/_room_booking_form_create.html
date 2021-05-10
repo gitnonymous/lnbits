@@ -132,6 +132,29 @@
         label="per room / person"
     ></q-select>
 </div>
+<div :class="($q.dark.isActive) ? 'dark_color_correct q-pa-sm rounded-borders row items-center' : 'bg-grey-2 q-pa-sm rounded-borders row items-center'"
+>
+  {%raw%}
+  <div class="column items-center col-2">
+    <q-btn icon="event" round color="deep-purple">
+      <q-popup-proxy
+        @before-show="updateProxy('exclude')"
+        transition-show="scale"
+        transition-hide="scale"
+        :breakpoint="1200">
+        <q-date v-model="form.data.exproxyDate" color="deep-purple" multiple :options="dateOptions">
+          <div class="row items-center justify-end q-gutter-sm">
+            <q-btn label="Cancel/Delete" color="primary" flat v-close-popup @click="form.data.exdate = []" /></q-btn>
+            <q-btn label="OK" color="primary" flat @click="save('exclude')" v-close-popup /></q-btn>
+          </div>
+        </q-date>
+      </q-popup-proxy>
+    </q-btn>
+  </div>
+  <span v-if="form.data.exdate?.length" class="wrap justify-center col-10 text-center q-px-sm" ><strong style="font-size:1rem; width:100%;">{{exdateDisplay}}</strong></span>
+  <span v-else class="col-8 text-center" ><strong style="font-size:1.4rem;">Exclude Dates</strong></span>
+  {%endraw%}
+</div>  
     <q-input
     filled
     dense

@@ -22,7 +22,9 @@ new Vue({
                 wallet: null,
                 booking_item: '',
                 date:[],
+                exdate:[],
                 proxyDate:[],
+                exproxyDate:[],
                 table_days:[]
             }
         },
@@ -134,7 +136,9 @@ new Vue({
             this.g.user.wallets[0].inkey,
             payload
             )
-            data.success && Quasar.plugins.Notify.create({message: data.success, timeout: 3000 })
+            data.success && (Quasar.plugins.Notify.create({message: data.success, timeout: 3000 }),
+            this.settings.show = false
+            )
         },
         formAction(val){
             const {data} = val
@@ -290,16 +294,21 @@ new Vue({
             }
             return action[p.func](p)
         },
-        updateProxy () {
-            this.form.data.date = [moment().format('yy/MM/DD')]
-            this.form.data.proxyDate = this.form.data.date
+        updateProxy (p) {
+            p == 'date' &&(
+            this.form.data.date?.length ? '' : this.form.data.date = [moment().format('yy/MM/DD')],
+            this.form.data.proxyDate = this.form.data.date)
+            p == 'exclude' && (
+            this.form.data.exdate?.length ? '' : this.form.data.exdate = [moment().format('yy/MM/DD')],
+            this.form.data.exproxyDate = this.form.data.exdate)
         },
-        save () {
-        this.form.data.date = this.form.data.proxyDate
+        save (p) {
+            p == 'date' &&(this.form.data.date = this.form.data.proxyDate)
+            p == 'exclude' && (this.form.data.exdate = this.form.data.exproxyDate)
         },
-        datePickerFormat(){
-            let date_val, cur_date = this.form.data.date
-            let len = this.form.data.date?.length
+        datePickerFormat(p){
+            let date_val, choice = {date: 'date', exclude: 'exdate'} , cur_date = this.form.data[choice[p]]
+            let len = this.form.data[choice[p]]?.length
             len === 1 && typeof cur_date[0] == 'string' && (date_val = cur_date[0])
             len === 1 && typeof cur_date[0] == 'object' && (date_val = `${cur_date[0].from} to ${cur_date[0].to}`)
             len > 1 && typeof cur_date[0] == 'string' && (date_val = cur_date.join(', '))
@@ -338,7 +347,10 @@ new Vue({
     },
     computed:{
         dateDisplay(){
-            return this.datePickerFormat()
+            return this.datePickerFormat('date')
+        },
+        exdateDisplay(){
+            return this.datePickerFormat('exclude')   
         }
     },
     mounted(){

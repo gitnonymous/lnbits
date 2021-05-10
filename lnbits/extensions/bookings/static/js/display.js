@@ -173,7 +173,11 @@ new Vue({
       },
       async getItemDates(id){
         let {data} = await LNbits.api.request('GET',`/bookings/api/v1/public/events/dates/${id}`,null)
-        data.success && (this.booking.itemDates = data.success, this.booking.btn = false)
+        data.success && (
+          this.booking.itemDates = data.success[0], 
+          this.booking.excludeDates = data.success[1], 
+          this.booking.btn = false         
+          )
       },
       gps(value){
         return value.toFixed(5)
@@ -246,7 +250,8 @@ new Vue({
         sdays.some(day=> day == date) && days.push(date)
         !tdays.length && !sdays.length && ( beforeToday && days.push(date))
         let returnDay = +days.some(day=> day == date) === 1
-        this.booking?.itemDates[date] && this.booking?.itemDates[date] >= +item.acca && (returnDay = false)
+        this.booking.itemDates?.date && this.booking?.itemDates[date] >= +item.acca && (returnDay = false)
+        this.booking.excludeDates?.some(x=> x == date) && (returnDay = false)
         return returnDay
         // return date >= '2021/04/03' && date <= '2021/06/15'
       },

@@ -102,14 +102,15 @@ async def clearBookings(p) -> None:
 async def accaDates(id:str)-> dict:
     dates={}
     row = await db.fetchall("SELECT * FROM booking_evts WHERE item_id = ? AND paid = TRUE", (id))
-    if not row:
-        return {"success":{}}
-    for item in [dict(ix) for ix in row]:
-        if item['date'] in dates:
-            dates[item['date']] = int(dates[item['date']]) + int(item['acca'])
-        else:
-            dates[item['date']] = int(item['acca'])
-    return {"success": dates}
+    if row:
+        for item in [dict(ix) for ix in row]:
+            if item['date'] in dates:
+                dates[item['date']] = int(dates[item['date']]) + int(item['acca'])
+            else:
+                dates[item['date']] = int(item['acca'])
+    bkI = await db.fetchone("SELECT * FROM booking_items WHERE id = ?", (id))
+    exdate = json.loads(dict(bkI)['data'])['exdate']
+    return {"success": [dates, exdate]}
 
 async def feedBack(p) -> dict:
     item_id, bk_id = p['item_id'], p['bk_id']
@@ -141,7 +142,7 @@ async def lnbits_booking_bot(usr:str, cus_id:str)-> dict:
             bd = json.loads(bk_data[0])
             payload = {
                 "token": "3d99a933-f919-43a0-ae6c-003496eb1037",
-                "msg": f"*{bd['bk_type'].title()}* booked on *{', '.join(bd['date'])}* by *{bd['name']}*({bd['acca']})",
+                "msg": f"*{bd['bk_type'].title()}:* _{bd['title']}_ booked on *{', '.join(bd['date'])}* by *{bd['name']}*({bd['acca']})",
                 "ch_id": int(chid['tg_chatId'])
             }
             headers = {"Content-Type":"application/json"}
@@ -151,4 +152,4 @@ async def lnbits_booking_bot(usr:str, cus_id:str)-> dict:
         else:
             return {}
     except:
-        return {"msg":'except'  }
+        return {"msg":'No settings'}
