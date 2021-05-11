@@ -42,14 +42,18 @@ new Vue({
             table:{
                 columns:[
                 { name: 'b1', align: 'left', label: '', field: ''},
+                { name: 'cus_id', align: 'left', label: 'Booking ref#', field: 'cus_id', sortable: true},
                 { name: 'title', align: 'left', label: 'Title', field: 'title', sortable: true},
                 { name: 'type', align: 'left', label: 'Type', field: 'type', sortable: true },
                 { name: 'qty', align: 'left', label: 'Qty', field: 'qty', sortable: true},
                 { name: 'date', align: 'left', label: 'Date', field: 'date', sortable: true },
                 { name: 'paid', align: 'left', label: 'Paid', field: 'paid', sortable: true },
                 { name: 'email', align: 'left', label: 'Email', field: 'email', sortable: true },
+                { name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true },
+                { name: 'phone', align: 'left', label: 'Phone', field: 'phone', sortable: true },
                 ],
-                data:[]
+                data:[],
+                visibleColumns: ['b1', 'title','type','qty','date','paid','email']
             },
             data:[],
             info:{
@@ -137,6 +141,7 @@ new Vue({
             payload
             )
             data.success && (Quasar.plugins.Notify.create({message: data.success, timeout: 3000 }),
+            this.settings.data = this.settings.form.data,
             this.settings.show = false
             )
         },
@@ -343,6 +348,21 @@ new Vue({
         },
         shortDate(date){
             return moment(date).format('ddd, Do MMM')
+        },
+        exportCSV(){
+            LNbits.utils.exportCSV(
+                this.events.table.columns.filter((x,i)=> i >0), 
+                this.events.table.data)
+        },
+        async getAllBkEvents(){
+            let {data} = await LNbits.api
+            .request('GET',
+            `/bookings/api/v1/events?alias=${this.alias}&all=true`, 
+            this.g.user.wallets[0].inkey
+            )
+            data.length > 0 && ( 
+                data = data.map(x=>(Object.assign({...x},{data:JSON.parse(x.data)}))),
+                this.eventsTableData(data))
         }
     },
     computed:{

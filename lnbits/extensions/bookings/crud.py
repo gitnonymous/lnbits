@@ -37,6 +37,10 @@ async def getAlias(
     except:
         return {"error":"Database Error"}
 
+async def getUsr(alias:str)-> str:
+    row = await db.fetchone("SELECT usr_id FROM alias WHERE alias = ?", (alias))
+    return row[0]
+
 async def getItems(
     alias: str,
     public: Optional[bool]
@@ -180,10 +184,13 @@ async def createBookingEvent(
      
 async def getEvents(
     alias: str,
+    all:bool
 ) -> List:
         dt = datetime.today().strftime('%Y/%m/%d')
-        row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = ? ", (alias))
-        # row = await db.fetchall(f"SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = '{alias}' AND date >= '{dt}'")
+        if all:
+            row = await db.fetchall("SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = ? ", (alias))
+        else:
+            row = await db.fetchall(f"SELECT id, cus_id, acca, bk_type, paid, date, data FROM booking_evts WHERE alias = '{alias}' AND date >= '{dt}'")
         if not row:
             return {[]}
         else:
@@ -207,11 +214,23 @@ async def deleteEvent(id:str, cus_id:str, select:str)-> dict:
 
 async def setSettings(p) -> dict:
     if 'GET' in p:
-        row = await db.fetchone("SELECT data FROM usr_settings WHERE usr = ?", (p["GET"]))
+        usr = ''
+        if 'alias' in p:
+            usr = await getUsr(p['alias'])
+        else:
+            usr = p['GET']
+        row = await db.fetchone("SELECT data FROM usr_settings WHERE usr = ?", (usr))
         if row is None:
             return jsonify(success=[])
         else:
-            return jsonify(success=[json.loads(row[0])])
+            js_on = json.loads(row[0])
+            print(js_on)
+            if 'alias' in p:
+                if 'tg_chatId' in js_on:
+                    del js_on['tg_chatId']
+                return jsonify(success=js_on)
+            else:
+                return jsonify(success=[js_on])
     else:
         usr, data = p.values()
         await db.execute("INSERT OR REPLACE INTO usr_settings (usr,data) VALUES(?,?)",(usr,data))

@@ -8,8 +8,13 @@
     title="Booking Events"
     :data="events.table.data"
     :columns="events.table.columns"
-    row-key="name"  
+    row-key="name"
+    :visible-columns="events.table.visibleColumns"  
     />
+    <template v-slot:top-right>
+      <q-btn flat color="grey" @click="getAllBkEvents">Show all</q-btn>
+      <q-btn flat color="grey" @click="exportCSV">Export to CSV</q-btn>
+    </template>
     <template v-slot:body="props">
         <q-tr :props="props">
           <q-td key="b1" :props="props" auto-width>
@@ -32,6 +37,9 @@
               @click="showBookingEvent(props.row.id)"
             ></q-btn>
           </q-td>
+          <q-td key="cus_id" :props="props" auto-width>
+            {{props.row.cus_id}}
+          </q-td>
           <q-td key="title" :props="props" auto-width>
             {{props.row.title.length > 15 ? props.row.title.substring(0,9)+'..' : props.row.title}}
           </q-td>
@@ -50,6 +58,12 @@
           </q-td>
           <q-td key="email" :props="props" auto-width>
             <a style="text-decoration:none; color:inherit;" :href="'mailto:'+props.row.email">{{props.row.email}}</a>
+          </q-td>
+          <q-td key="name" :props="props" auto-width>
+            {{props.row.name}}
+          </q-td>
+          <q-td key="phone" :props="props" auto-width>
+            {{props.row.phone}}
           </q-td>
         </q-tr>
       </template>

@@ -81,7 +81,11 @@ async def items_delete(id):
 async def events_get():
     alias = request.args.get('alias')
     usr = request.args.get('usr')
-    events = await getEvents(alias)
+    all = request.args.get('all')
+    if all is not None:
+        events = await getEvents(alias, True)
+    else:
+        events = await getEvents(alias, False)
     return events, HTTPStatus.OK
 
 # Booking settings API
@@ -153,7 +157,13 @@ async def api_public_post_event_feedback():
     feedback = await feedBack(data)
     return feedback, HTTPStatus.OK
 
+@bookings_ext.route("/api/v1/public/settings", methods=["GET"])
+async def api_public_settings():
+    alias = request.args.get('alias')
+    settings = await setSettings({"GET": True, "alias": alias})
+    return settings, HTTPStatus.OK
+
 @bookings_ext.route("/api/v1/public/", methods=["GET"])
 async def api_public_post_test():
-    feedback = await lnbits_booking_bot("13e08fc415f74d5cbb1fe9e0fe600eaa", "YV53ySTo2ifEaDxVHZR2wd")
+    feedback = await lnbits_booking_bot("13e08fc415f74d5cbb1fe9e0fe600eaa", "csDhVUfJyFkZsw4n33nEQM")
     return feedback, HTTPStatus.OK

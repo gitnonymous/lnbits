@@ -140,15 +140,16 @@ async def lnbits_booking_bot(usr:str, cus_id:str)-> dict:
         if 'tg_chatId' in chid and chid['tg_chatId'] is not None:
             bk_data = await db.fetchone("SELECT data FROM booking_evts WHERE cus_id = ? ORDER BY time DESC LIMIT 1",(cus_id))
             bd = json.loads(bk_data[0])
-            payload = {
-                "token": "3d99a933-f919-43a0-ae6c-003496eb1037",
-                "msg": f"*{bd['bk_type'].title()}:* _{bd['title']}_ booked on *{', '.join(bd['date'])}* by *{bd['name']}*({bd['acca']})",
-                "ch_id": int(chid['tg_chatId'])
-            }
-            headers = {"Content-Type":"application/json"}
-            url = 'https://lnbooking.duckdns.org:12567/lnbookings'
-            r = httpx.request('POST', url, headers=headers, json=payload, verify=False )
-            return r.json()
+            for chatID in chid['tg_chatId'].split(','):
+                payload = {
+                    "token": "3d99a933-f919-43a0-ae6c-003496eb1037",
+                    "msg": f"*{bd['bk_type'].title()}:* _{bd['title']}_ *@* _{bd['business_name']}_ booked on *{', '.join(bd['date'])}* by *{bd['name']}*({bd['acca']})",
+                    "ch_id": int(chatID.strip())
+                }
+                headers = {"Content-Type":"application/json"}
+                url = 'https://lnbooking.duckdns.org:12567/lnbookings'
+                r = httpx.request('POST', url, headers=headers, json=payload, verify=False )
+            return jsonify(success=True)
         else:
             return {}
     except:

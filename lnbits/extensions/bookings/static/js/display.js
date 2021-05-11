@@ -12,6 +12,9 @@ new Vue({
         location_default:'London',
         isSubmitting: false,
         showQr: false,
+        settings:{
+          data:{}
+        },
         form:{
           data:{
 
@@ -111,6 +114,15 @@ new Vue({
             )
             return data
           }
+        }
+        action.loadSettings = async () =>{
+          const {data} = await LNbits.api
+          .request(
+          'GET',
+          `/bookings/api/v1/public/settings?alias=${alias}`,
+          null
+          )
+          return data.success
         }
         return action[p.func](p)
       },  
@@ -247,7 +259,7 @@ new Vue({
         let days = [], item = this.card_data.find(x=> x.id == this.booking.id), tdays = item?.table_days || [],
         sdays = item?.date ? item.date : [], beforeToday = date >= moment(new Date()).format('yy/MM/DD') 
         tdays.some(x=> +x == moment(new Date(date)).days()) && ( beforeToday && days.push(date))
-        sdays.some(day=> day == date) && days.push(date)
+        sdays.some(day=> day == date) && beforeToday && days.push(date)
         !tdays.length && !sdays.length && ( beforeToday && days.push(date))
         let returnDay = +days.some(day=> day == date) === 1
         this.booking.itemDates?.date && this.booking?.itemDates[date] >= +item.acca && (returnDay = false)
@@ -322,7 +334,20 @@ new Vue({
       }
     },
     mounted(){  
-      document.querySelector('.q-toolbar a').innerHTML = "<strong>LN</strong>bits Booking System"
+      document.querySelector('.q-toolbar a').innerHTML = ""
+      setTimeout(_=> (
+        document.querySelector('.q-toolbar a').innerHTML = "<strong>LN</strong>bits Booking System",
+        this.settings.data.event_bar_title &&(
+        document.querySelector('.q-toolbar a').innerHTML = this.settings.data.event_bar_title
+      ),
+      this.settings.data.event_bar_color &&(
+        document.querySelector('.q-toolbar a').style.color = this.settings.data.event_bar_color
+      ),
+      this.settings.data.event_bar_bgcolor &&(
+        document.querySelector('.q-header').style.background = this.settings.data.event_bar_bgcolor
+      ))
+      ,200)
+      
       // document.querySelector('.q-toolbar a').style.color = "#212121"
       // document.querySelector('.q-toolbar a').style.fontFamily = "Monserat"
       // document.querySelector('.q-header').style.background = "inherit"
@@ -334,6 +359,6 @@ new Vue({
       this.cus_id = items[0]
       this.displaySort()
       this.loadStars()
-      
+      this.settings.data = await this.init({func: 'loadSettings'})
     }
   })
